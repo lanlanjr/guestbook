@@ -53,5 +53,5 @@ def init_db():
         print(f"Database initialized at {app.config['SQLALCHEMY_DATABASE_URI']}")
 
 if __name__ == '__main__':
-    init_db()
+    # init_db()
     app.run(debug=True) 
