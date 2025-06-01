@@ -1,0 +1,538 @@
+{% extends "base.html" %}
+
+{% block title %}Slideshow - {{ event.name }} - PortalShare{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #000;
+        color: #fff;
+        overflow: hidden;
+    }
+    
+    .navbar, .footer {
+        display: none;
+    }
+    
+    .slideshow-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+    }
+    
+    .slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 1.5s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+        overflow: hidden;
+    }
+    
+    .slide.active {
+        opacity: 1;
+        z-index: 2;
+    }
+    
+    .slide img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform 1s ease-in-out;
+    }
+    
+    .slide.active img {
+        animation-duration: 5s;
+        animation-timing-function: ease-in-out;
+        animation-fill-mode: forwards;
+    }
+    
+    .slide-caption {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .controls {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 10;
+        display: flex;
+        gap: 10px;
+    }
+    
+    .control-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.3);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .control-btn:hover {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .fullscreen-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px;
+        cursor: pointer;
+    }
+    
+    .qr-container {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 10;
+        background-color: rgba(0, 0, 0, 0.7);
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .qr-code-img {
+        max-width: 150px;
+        margin-bottom: 10px;
+        background-color: white;
+        padding: 8px;
+        border-radius: 8px;
+    }
+    
+    .no-photos {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .loading-indicator {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 100;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        display: none;
+    }
+    
+    .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 4px solid #fff;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .qr-toggle-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 10;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        display: none;
+    }
+    
+    .close-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 5px;
+        line-height: 1;
+    }
+    
+    /* Pan and zoom animations */
+    @keyframes pan-right-zoom-in {
+        from { transform: scale(1) translate(0, 0); }
+        to { transform: scale(1.1) translate(-5%, 0); }
+    }
+    
+    @keyframes pan-left-zoom-in {
+        from { transform: scale(1) translate(0, 0); }
+        to { transform: scale(1.1) translate(5%, 0); }
+    }
+    
+    @keyframes pan-up-zoom-in {
+        from { transform: scale(1) translate(0, 0); }
+        to { transform: scale(1.1) translate(0, 5%); }
+    }
+    
+    @keyframes pan-down-zoom-in {
+        from { transform: scale(1) translate(0, 0); }
+        to { transform: scale(1.1) translate(0, -5%); }
+    }
+    
+    @keyframes pan-up-right-zoom-in {
+        from { transform: scale(1) translate(0, 0); }
+        to { transform: scale(1.1) translate(-5%, 5%); }
+    }
+    
+    @keyframes pan-up-left-zoom-in {
+        from { transform: scale(1) translate(0, 0); }
+        to { transform: scale(1.1) translate(5%, 5%); }
+    }
+    
+    @keyframes pan-down-right-zoom-in {
+        from { transform: scale(1) translate(0, 0); }
+        to { transform: scale(1.1) translate(-5%, -5%); }
+    }
+    
+    @keyframes pan-down-left-zoom-in {
+        from { transform: scale(1) translate(0, 0); }
+        to { transform: scale(1.1) translate(5%, -5%); }
+    }
+    
+    @keyframes zoom-in {
+        from { transform: scale(1); }
+        to { transform: scale(1.1); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="slideshow-container">
+    {% if photos %}
+        {% for photo in photos %}
+            <div class="slide {% if loop.first %}active{% endif %}">
+                <img src="{{ url_for('uploaded_file', folder='photos', filename=photo.filename) }}" alt="Photo by {{ photo.guest_name }}">
+                <div class="slide-caption">
+                    <h4>{{ photo.guest_name or 'Anonymous' }}</h4>
+                    <p>{{ photo.caption or '' }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-photos">
+            <i class="fas fa-camera display-1 mb-4"></i>
+            <h2>No photos yet</h2>
+            <p class="lead mb-4">Share the QR code with your guests to start collecting photos</p>
+            <img src="data:image/png;base64,{{ photo_upload_qr }}" alt="Photo Upload QR Code" class="img-fluid qr-code-img">
+            <p class="mt-3">Scan to upload photos</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- QR code toggle button -->
+<button class="qr-toggle-btn" id="qrToggleBtn">
+    <i class="fas fa-qrcode"></i>
+</button>
+
+<div class="qr-container" id="qrContainer">
+    <button class="close-btn" id="closeQrBtn">
+        <i class="fas fa-times"></i>
+    </button>
+    <img src="data:image/png;base64,{{ photo_upload_qr }}" alt="Photo Upload QR Code" class="img-fluid qr-code-img">
+    <p class="mb-0">Scan to add photos</p>
+</div>
+
+<div class="controls">
+    <div class="control-btn" id="prevBtn">
+        <i class="fas fa-chevron-left"></i>
+    </div>
+    <div class="control-btn" id="playPauseBtn">
+        <i class="fas fa-pause"></i>
+    </div>
+    <div class="control-btn" id="nextBtn">
+        <i class="fas fa-chevron-right"></i>
+    </div>
+</div>
+
+<button class="fullscreen-btn" id="fullscreenBtn">
+    <i class="fas fa-expand"></i>
+</button>
+
+<div class="loading-indicator" id="loadingIndicator">
+    <div class="spinner"></div>
+    <p>Loading new photos...</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elements
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const qrContainer = document.getElementById('qrContainer');
+        const qrToggleBtn = document.getElementById('qrToggleBtn');
+        const closeQrBtn = document.getElementById('closeQrBtn');
+        
+        // Handle QR code container toggling
+        if (closeQrBtn && qrContainer && qrToggleBtn) {
+            closeQrBtn.addEventListener('click', function() {
+                qrContainer.style.display = 'none';
+                qrToggleBtn.style.display = 'flex';
+            });
+            
+            qrToggleBtn.addEventListener('click', function() {
+                qrContainer.style.display = 'flex';
+                qrToggleBtn.style.display = 'none';
+            });
+            
+            // Auto-hide QR container after 10 seconds
+            setTimeout(function() {
+                if (qrContainer.style.display !== 'none') {
+                    qrContainer.style.display = 'none';
+                    qrToggleBtn.style.display = 'flex';
+                }
+            }, 10000);
+        }
+        
+        // Variables
+        let currentSlide = 0;
+        let slideInterval;
+        let isPlaying = true;
+        let slideshowSpeed = 7000; // 7 seconds to allow animations to complete
+        let animationDuration = 6000; // 6 seconds for the animation
+        
+        // Initialize slideshow
+        function startSlideshow() {
+            if (slides.length > 0) {
+                slideInterval = setInterval(nextSlide, slideshowSpeed);
+                isPlaying = true;
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            }
+        }
+        
+        // Stop slideshow
+        function stopSlideshow() {
+            clearInterval(slideInterval);
+            isPlaying = false;
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+        
+        // Show slide
+        function showSlide(n) {
+            if (slides.length === 0) return;
+            
+            // Hide all slides
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            // Set current slide index
+            currentSlide = (n + slides.length) % slides.length;
+            
+            // Show current slide
+            slides[currentSlide].classList.add('active');
+            
+            // Apply random pan and zoom effect
+            applyRandomPanEffect(slides[currentSlide]);
+        }
+        
+        // Apply random pan and zoom effect
+        function applyRandomPanEffect(slide) {
+            const img = slide.querySelector('img');
+            if (!img) return;
+            
+            // Remove any existing animation
+            img.style.animation = 'none';
+            
+            // Force reflow
+            void img.offsetWidth;
+            
+            // Define possible animations
+            const animations = [
+                'pan-right-zoom-in',
+                'pan-left-zoom-in',
+                'pan-up-zoom-in',
+                'pan-down-zoom-in',
+                'pan-up-right-zoom-in',
+                'pan-up-left-zoom-in',
+                'pan-down-right-zoom-in',
+                'pan-down-left-zoom-in',
+                'zoom-in'
+            ];
+            
+            // Select random animation
+            const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+            
+            // Add some variation to animation duration (5.5 - 6.5 seconds)
+            const duration = animationDuration + (Math.random() * 1000 - 500);
+            
+            // Add some variation to animation timing function
+            const timingFunctions = ['ease', 'ease-in-out', 'cubic-bezier(0.4, 0, 0.2, 1)'];
+            const randomTiming = timingFunctions[Math.floor(Math.random() * timingFunctions.length)];
+            
+            // Apply the animation
+            img.style.animation = `${randomAnimation} ${duration}ms ${randomTiming} forwards`;
+        }
+        
+        // Next slide
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+        
+        // Previous slide
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+        
+        // Toggle play/pause
+        function togglePlayPause() {
+            if (isPlaying) {
+                stopSlideshow();
+            } else {
+                startSlideshow();
+            }
+        }
+        
+        // Toggle fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                }
+            }
+        }
+        
+        // Event listeners
+        if (prevBtn) prevBtn.addEventListener('click', function() {
+            prevSlide();
+            if (isPlaying) {
+                stopSlideshow();
+                startSlideshow();
+            }
+        });
+        
+        if (nextBtn) nextBtn.addEventListener('click', function() {
+            nextSlide();
+            if (isPlaying) {
+                stopSlideshow();
+                startSlideshow();
+            }
+        });
+        
+        if (playPauseBtn) playPauseBtn.addEventListener('click', togglePlayPause);
+        if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                prevSlide();
+                if (isPlaying) {
+                    stopSlideshow();
+                    startSlideshow();
+                }
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+                if (isPlaying) {
+                    stopSlideshow();
+                    startSlideshow();
+                }
+            } else if (e.key === ' ') {
+                togglePlayPause();
+            } else if (e.key === 'f') {
+                toggleFullscreen();
+            } else if (e.key === 'q') {
+                // Toggle QR code display with 'q' key
+                if (qrContainer.style.display === 'none' || qrContainer.style.display === '') {
+                    qrContainer.style.display = 'flex';
+                    qrToggleBtn.style.display = 'none';
+                } else {
+                    qrContainer.style.display = 'none';
+                    qrToggleBtn.style.display = 'flex';
+                }
+            }
+        });
+        
+        // Fetch new photos periodically
+        function fetchNewPhotos() {
+            loadingIndicator.style.display = 'block';
+            
+            fetch('{{ url_for("api_photos", event_uuid=event.uuid) }}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > slides.length) {
+                        // Reload the page if there are new photos
+                        location.reload();
+                    }
+                    loadingIndicator.style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error fetching photos:', error);
+                    loadingIndicator.style.display = 'none';
+                });
+        }
+        
+        // Start the slideshow
+        if (slides.length > 0) {
+            // Apply animation to the first slide
+            if (slides[0].classList.contains('active')) {
+                applyRandomPanEffect(slides[0]);
+            }
+            
+            startSlideshow();
+            
+            // Check for new photos every 30 seconds
+            setInterval(fetchNewPhotos, 30000);
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,224 @@
+/* Theme styles for PortalShare */
+
+/* Default Theme */
+.theme-default {
+    --primary-color: #ff6b6b;
+    --secondary-color: #4ecdc4;
+    --accent-color: #ffcc5c;
+    --dark-color: #292f36;
+    --light-color: #f7fff7;
+    --gradient-bg: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    --card-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    --header-font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --body-font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --navbar-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    --card-border-radius: 10px;
+    --button-border-radius: 5px;
+    --tab-active-color: #ff6b6b;
+    --tab-hover-bg: rgba(161, 107, 255, 0.05);
+}
+
+/* Elegant Theme */
+.theme-elegant {
+    --primary-color: #2c3e50;
+    --secondary-color: #bdc3c7;
+    --accent-color: #e74c3c;
+    --dark-color: #1a252f;
+    --light-color: #f9f9f9;
+    --gradient-bg: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    --card-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    --header-font: 'Georgia', serif;
+    --body-font: 'Helvetica Neue', Arial, sans-serif;
+    --navbar-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    --card-border-radius: 5px;
+    --button-border-radius: 3px;
+    --tab-active-color: #2c3e50;
+    --tab-hover-bg: rgba(44, 62, 80, 0.05);
+}
+
+/* Romantic Theme */
+.theme-romantic {
+    --primary-color: #ff758c;
+    --secondary-color: #ff7eb3;
+    --accent-color: #ffa7c4;
+    --dark-color: #4a4a4a;
+    --light-color: #fff6f9;
+    --gradient-bg: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    --card-shadow: 0 4px 8px rgba(255,121,140,0.2);
+    --header-font: 'Playfair Display', serif;
+    --body-font: 'Montserrat', sans-serif;
+    --navbar-shadow: 0 2px 15px rgba(255,121,140,0.3);
+    --card-border-radius: 15px;
+    --button-border-radius: 25px;
+    --tab-active-color: #ff758c;
+    --tab-hover-bg: rgba(255, 117, 140, 0.05);
+}
+
+/* Nature Theme */
+.theme-nature {
+    --primary-color: #76b852;
+    --secondary-color: #8DC26F;
+    --accent-color: #f9d423;
+    --dark-color: #2c3e50;
+    --light-color: #f8f9f0;
+    --gradient-bg: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    --card-shadow: 0 4px 8px rgba(118,184,82,0.2);
+    --header-font: 'Ubuntu', sans-serif;
+    --body-font: 'Open Sans', sans-serif;
+    --navbar-shadow: 0 2px 8px rgba(118,184,82,0.25);
+    --card-border-radius: 8px;
+    --button-border-radius: 6px;
+    --tab-active-color: #76b852;
+    --tab-hover-bg: rgba(2, 4, 0, 0.05);
+}
+
+/* Common theme styles */
+[class*="theme-"] .navbar {
+    background: var(--gradient-bg);
+    box-shadow: var(--navbar-shadow);
+}
+
+[class*="theme-"] .navbar-brand,
+[class*="theme-"] .nav-link {
+    color: white !important;
+}
+
+[class*="theme-"] .btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    border-radius: var(--button-border-radius);
+}
+
+[class*="theme-"] .btn-primary:hover {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+[class*="theme-"] .btn-secondary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    border-radius: var(--button-border-radius);
+}
+
+[class*="theme-"] .btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+[class*="theme-"] h1, 
+[class*="theme-"] h2, 
+[class*="theme-"] h3, 
+[class*="theme-"] h4, 
+[class*="theme-"] h5, 
+[class*="theme-"] h6 {
+    font-family: var(--header-font);
+}
+
+[class*="theme-"] body {
+    font-family: var(--body-font);
+    background-color: var(--light-color);
+}
+
+[class*="theme-"] .card {
+    box-shadow: var(--card-shadow);
+    border-radius: var(--card-border-radius);
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+[class*="theme-"] .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+[class*="theme-"] .footer {
+    background-color: var(--dark-color);
+    color: white;
+}
+
+[class*="theme-"] .feature-icon {
+    color: var(--primary-color);
+}
+
+/* Tab styling for all themes */
+[class*="theme-"] .nav-tabs {
+    border-bottom: 1px solid var(--primary-color);
+}
+
+[class*="theme-"] .nav-tabs .nav-link {
+    color: #333333;
+    font-family: var(--header-font);
+    font-weight: 600;
+}
+
+[class*="theme-"] .nav-tabs .nav-link i {
+    color: #555555;
+}
+
+[class*="theme-"] .nav-tabs .nav-link:hover {
+    background-color: #434242;
+    color: #000000;
+}
+
+[class*="theme-"] .nav-tabs .nav-link:hover i {
+    color: #000000;
+}
+
+[class*="theme-"] .nav-tabs .nav-link.active {
+    color: var(--tab-active-color);
+    border-color: var(--primary-color) var(--primary-color) #fff;
+    font-weight: 700;
+}
+
+[class*="theme-"] .nav-tabs .nav-link.active i {
+    color: var(--tab-active-color);
+}
+
+[class*="theme-"] .nav-tabs .nav-link .badge {
+    background-color: var(--primary-color) !important;
+    color: white;
+}
+
+[class*="theme-"] .nav-tabs .nav-link.active .badge {
+    background-color: var(--tab-active-color) !important;
+}
+
+/* Theme-specific overrides */
+.theme-elegant .card-header {
+    font-family: var(--header-font);
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    background-color: rgba(0,0,0,0.02);
+}
+
+.theme-elegant .navbar-brand {
+    font-family: var(--header-font);
+    letter-spacing: 1px;
+}
+
+.theme-romantic .btn {
+    border-radius: 25px;
+    padding: 0.5rem 1.5rem;
+}
+
+.theme-romantic .card {
+    border-radius: 15px;
+}
+
+.theme-romantic .navbar-brand {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+}
+
+.theme-nature .card {
+    border-radius: 8px;
+    border-top: 3px solid var(--primary-color);
+}
+
+.theme-nature .btn {
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+} 

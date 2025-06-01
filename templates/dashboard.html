@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - PortalShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Your Events</h1>
+        <a href="{{ url_for('create_event') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i> Create New Event
+        </a>
+    </div>
+
+    {% if events %}
+        <div class="row">
+            {% for event in events %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card event-card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title">{{ event.name }}</h3>
+                            <p class="card-text text-muted mb-1">
+                                <i class="fas fa-calendar-alt me-2"></i> {{ event.date.strftime('%B %d, %Y') }}
+                            </p>
+                            <p class="card-text text-muted mb-3">
+                                <i class="fas fa-map-marker-alt me-2"></i> {{ event.location or 'No location specified' }}
+                            </p>
+                            <p class="card-text">{{ event.description or 'No description provided.' }}</p>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <a href="{{ url_for('view_event', event_uuid=event.uuid) }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-eye me-2"></i> View Event
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card p-5 text-center">
+            <div class="mb-4">
+                <i class="fas fa-calendar-plus display-1 text-muted"></i>
+            </div>
+            <h3>You don't have any events yet</h3>
+            <p class="text-muted mb-4">Create your first event to start collecting memories from your special day.</p>
+            <div class="text-center">
+                <a href="{{ url_for('create_event') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i> Create Your First Event
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="card bg-light border-0">
+                <div class="card-body p-4">
+                    <h3>Quick Tips</h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item bg-transparent border-0 ps-0">
+                            <i class="fas fa-check-circle text-success me-2"></i> 
+                            Create an event for your wedding day
+                        </li>
+                        <li class="list-group-item bg-transparent border-0 ps-0">
+                            <i class="fas fa-check-circle text-success me-2"></i> 
+                            Share the QR codes with your guests
+                        </li>
+                        <li class="list-group-item bg-transparent border-0 ps-0">
+                            <i class="fas fa-check-circle text-success me-2"></i> 
+                            Display the slideshow during your reception
+                        </li>
+                        <li class="list-group-item bg-transparent border-0 ps-0">
+                            <i class="fas fa-check-circle text-success me-2"></i> 
+                            Collect messages, photos, and audio memories all in one place
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

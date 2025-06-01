@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}PortalShare - Digital Wedding Guestbook{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row align-items-center py-5">
+        <div class="col-md-6">
+            <h1 class="display-4 fw-bold">Capture Every Moment of Your Special Day</h1>
+            <p class="lead my-4">PortalShare transforms how you collect and cherish memories from your wedding day with our digital guestbook, photo sharing, and audio message features.</p>
+            <div class="d-flex gap-3">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Get Started</a>
+                <a href="#features" class="btn btn-outline-secondary btn-lg">Learn More</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80" class="img-fluid rounded-3 shadow-lg" alt="Wedding couple">
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <h2 class="text-center mb-5">Our Features</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3>Digital Guestbook</h3>
+                    <p class="text-muted">Transform the way your guests share their love and well-wishes with our modern digital guestbook. Collect meaningful messages that last a lifetime.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h3>Photo Sharing with QR Code</h3>
+                    <p class="text-muted">Every photo taken by guests can be instantly uploaded to your collective gallery with our easy-to-use QR code system.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <h3>Audio Guestbook</h3>
+                    <p class="text-muted">Capture heartfelt messages, fun anecdotes, and well-wishes in your guests' own voices, creating a timeless keepsake.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <h3>Live Wedding Slideshow</h3>
+                    <p class="text-muted">Showcase photos and videos captured by your guests as they happen, creating a unique and interactive experience.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Social Engagement</h3>
+                    <p class="text-muted">Create unforgettable connections and lasting memories by engaging your wedding guests with interactive features and real-time sharing.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-5">
+        <h2 class="text-center mb-5">How It Works</h2>
+        <div class="row g-4 align-items-center">
+            <div class="col-md-6">
+                <img src="https://images.unsplash.com/photo-1522413452208-996ff3f3e740?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80" class="img-fluid rounded-3 shadow" alt="Wedding celebration">
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex mb-4">
+                    <div class="me-3">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">1</div>
+                    </div>
+                    <div>
+                        <h4>Create Your Event</h4>
+                        <p class="text-muted">Sign up and create your wedding event in just a few minutes.</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-4">
+                    <div class="me-3">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">2</div>
+                    </div>
+                    <div>
+                        <h4>Share Your QR Codes</h4>
+                        <p class="text-muted">Display QR codes at your venue for guests to scan and access your digital guestbook.</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-4">
+                    <div class="me-3">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">3</div>
+                    </div>
+                    <div>
+                        <h4>Collect Memories</h4>
+                        <p class="text-muted">Guests leave messages, upload photos, and record audio wishes throughout your special day.</p>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <div class="me-3">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">4</div>
+                    </div>
+                    <div>
+                        <h4>Cherish Forever</h4>
+                        <p class="text-muted">Access all your wedding memories in one place, forever.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5 text-center">
+        <div class="card bg-primary text-white p-5">
+            <h2 class="mb-4">Ready to Create Your Digital Wedding Guestbook?</h2>
+            <p class="lead mb-4">Join thousands of couples who have captured their special day with PortalShare.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('register') }}" class="btn btn-light btn-lg">Sign Up Now</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">Log In</a>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %} 

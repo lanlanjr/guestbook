@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Photos - {{ event.name }} - PortalShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center mb-5">
+                <h1 class="display-5 mb-3">{{ event.name }}</h1>
+                <p class="lead">Share your photos with the couple</p>
+                {% if event.gallery_enabled %}
+                <a href="{{ url_for('event_gallery', event_uuid=event.uuid) }}" class="btn btn-outline-primary">
+                    <i class="fas fa-images me-2"></i> View All Event Memories
+                </a>
+                {% endif %}
+            </div>
+
+            {% if event.photo_upload_enabled %}
+            <div class="card mb-5">
+                <div class="card-body p-4">
+                    <h2 class="card-title mb-4">Upload Photos</h2>
+                    <form method="POST" action="{{ url_for('submit_photo', event_uuid=event.uuid) }}" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Your Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name (optional)">
+                        </div>
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">Select Photo</label>
+                            <input type="file" class="form-control" id="photo" name="photo" accept="image/*" required>
+                            <div class="form-text">Accepted formats: JPG, PNG, GIF (Max size: 16MB)</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="caption" class="form-label">Caption (Optional)</label>
+                            <textarea class="form-control" id="caption" name="caption" rows="2" placeholder="Add a caption to your photo..."></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-upload me-2"></i> Upload Photo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="card mb-5">
+                <div class="card-body p-4 text-center">
+                    <i class="fas fa-ban text-danger display-4 mb-3"></i>
+                    <h2 class="card-title mb-3">Photo Uploads are Disabled</h2>
+                    <p class="mb-0">The event creator has temporarily disabled photo uploads.</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Other Ways to Share</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        {% if event.guestbook_enabled %}
+                        <div class="col-md-6">
+                            <div class="text-center">
+                                <i class="fas fa-book-open feature-icon"></i>
+                                <h4>Sign Guestbook</h4>
+                                <p class="mb-3">Leave a message in the couple's digital guestbook</p>
+                                <a href="{{ url_for('guestbook', event_uuid=event.uuid) }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-pen me-2"></i> Sign Guestbook
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if event.audio_upload_enabled %}
+                        <div class="col-md-6">
+                            <div class="text-center">
+                                <i class="fas fa-microphone feature-icon"></i>
+                                <h4>Record Audio</h4>
+                                <p class="mb-3">Leave an audio message for the couple</p>
+                                <a href="{{ url_for('record_audio', event_uuid=event.uuid) }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-microphone me-2"></i> Record Message
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if not event.guestbook_enabled and not event.audio_upload_enabled %}
+                        <div class="col-12 text-center py-4">
+                            <i class="fas fa-info-circle text-info display-4 mb-3"></i>
+                            <h4>No Additional Features Available</h4>
+                            <p>The event creator has disabled additional sharing features.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const photoInput = document.getElementById('photo');
+        const maxSize = 16 * 1024 * 1024; // 16MB
+        
+        photoInput.addEventListener('change', function() {
+            if (this.files[0] && this.files[0].size > maxSize) {
+                alert('File is too large. Maximum size is 16MB.');
+                this.value = '';
+            }
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,544 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.name }} - PortalShare{% endblock %}
+
+{% block extra_css %}
+<style>
+    .event-header {
+        background: var(--gradient-bg, linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%));
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+        border-radius: var(--card-border-radius, 10px);
+        box-shadow: var(--card-shadow, 0 4px 6px rgba(0,0,0,0.1));
+    }
+    
+    .qr-code-container {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+    }
+    
+    .qr-code-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+    
+    .qr-code-img {
+        padding: 10px;
+        background-color: white;
+        border-radius: 10px;
+    }
+    
+    .feature-status {
+        border-radius: var(--card-border-radius, 10px);
+    }
+    
+    .btn-outline-success.download-qr {
+        border-width: 2px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-success.download-qr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+    }
+    
+    .qr-code-container .download-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .qr-code-container:hover .download-overlay {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ event.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="event-header text-center">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-3">{{ event.name }}</h1>
+            <p class="lead mb-1">
+                <i class="fas fa-calendar-alt me-2"></i> {{ event.date.strftime('%B %d, %Y') }}
+                {% if event.location %}
+                <span class="mx-3">|</span>
+                <i class="fas fa-map-marker-alt me-2"></i> {{ event.location }}
+                {% endif %}
+            </p>
+            {% if event.description %}
+            <span class="mx-3">|</span>
+            <i class="fas fa-info-circle me-2"></i> {{ event.description }}
+            {% endif %}
+            <div class="mt-4">
+                <a href="{{ url_for('slideshow', event_uuid=event.uuid) }}" class="btn btn-light btn-lg me-2" target="_blank">
+                    <i class="fas fa-play-circle me-2"></i> Launch Slideshow
+                </a>
+                <a href="{{ url_for('manage_content', event_uuid=event.uuid) }}" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-cog me-2"></i> Manage Content
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Status Indicators -->
+    {% if not event.gallery_enabled or not event.photo_upload_enabled or not event.audio_upload_enabled or not event.guestbook_enabled %}
+    <div class="feature-status mb-4">
+        <div class="alert alert-warning">
+            <h5><i class="fas fa-exclamation-triangle me-2"></i> Some features are disabled</h5>
+            <ul class="mb-0 small">
+                {% if not event.gallery_enabled %}
+                <li>Guest gallery & slideshow disabled</li>
+                {% endif %}
+                {% if not event.photo_upload_enabled %}
+                <li>Photo uploads disabled</li>
+                {% endif %}
+                {% if not event.audio_upload_enabled %}
+                <li>Audio messages disabled</li>
+                {% endif %}
+                {% if not event.guestbook_enabled %}
+                <li>Guestbook messages disabled</li>
+                {% endif %}
+            </ul>
+            <div class="mt-2">
+                <a href="{{ url_for('manage_content', event_uuid=event.uuid) }}#settings-content" class="btn btn-sm btn-warning">
+                    <i class="fas fa-cog me-1"></i> Update Settings
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Share with Your Guests</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h4>Digital Guestbook</h4>
+                                    {% if event.guestbook_enabled %}
+                                        <div class="qr-code-container">
+                                            <img src="data:image/png;base64,{{ guestbook_qr }}" alt="Guestbook QR Code" class="img-fluid qr-code-img">
+                                            <div class="download-overlay">
+                                                <button class="btn btn-sm btn-light download-qr-overlay" data-qr="{{ guestbook_qr }}" data-title="{{ event.name }} - Guestbook">
+                                                    <i class="fas fa-download me-2"></i> Download
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <p class="mb-3">Scan to leave a message in the guestbook</p>
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ guestbook_url }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                                <i class="fas fa-external-link-alt me-2"></i> Open Link
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-primary copy-link" data-link="{{ guestbook_url }}">
+                                                <i class="fas fa-copy me-2"></i> Copy Link
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-success download-qr" data-qr="{{ guestbook_qr }}" data-title="{{ event.name }} - Guestbook">
+                                                <i class="fas fa-download me-2"></i> Download QR Code
+                                            </button>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-ban text-muted display-4 mb-3"></i>
+                                            <p class="text-danger">Guestbook is currently disabled</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h4>Photo Sharing</h4>
+                                    {% if event.photo_upload_enabled %}
+                                        <div class="qr-code-container">
+                                            <img src="data:image/png;base64,{{ photo_upload_qr }}" alt="Photo Upload QR Code" class="img-fluid qr-code-img">
+                                            <div class="download-overlay">
+                                                <button class="btn btn-sm btn-light download-qr-overlay" data-qr="{{ photo_upload_qr }}" data-title="{{ event.name }} - Photo Upload">
+                                                    <i class="fas fa-download me-2"></i> Download
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <p class="mb-3">Scan to upload photos to the gallery</p>
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ photo_upload_url }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                                <i class="fas fa-external-link-alt me-2"></i> Open Link
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-primary copy-link" data-link="{{ photo_upload_url }}">
+                                                <i class="fas fa-copy me-2"></i> Copy Link
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-success download-qr" data-qr="{{ photo_upload_qr }}" data-title="{{ event.name }} - Photo Upload">
+                                                <i class="fas fa-download me-2"></i> Download QR Code
+                                            </button>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-ban text-muted display-4 mb-3"></i>
+                                            <p class="text-danger">Photo uploads are currently disabled</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h4>Audio Messages</h4>
+                                    {% if event.audio_upload_enabled %}
+                                        <div class="qr-code-container">
+                                            <img src="data:image/png;base64,{{ audio_message_qr }}" alt="Audio Message QR Code" class="img-fluid qr-code-img">
+                                            <div class="download-overlay">
+                                                <button class="btn btn-sm btn-light download-qr-overlay" data-qr="{{ audio_message_qr }}" data-title="{{ event.name }} - Audio Messages">
+                                                    <i class="fas fa-download me-2"></i> Download
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <p class="mb-3">Scan to record audio messages</p>
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ audio_message_url }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                                <i class="fas fa-external-link-alt me-2"></i> Open Link
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-primary copy-link" data-link="{{ audio_message_url }}">
+                                                <i class="fas fa-copy me-2"></i> Copy Link
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-success download-qr" data-qr="{{ audio_message_qr }}" data-title="{{ event.name }} - Audio Messages">
+                                                <i class="fas fa-download me-2"></i> Download QR Code
+                                            </button>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-ban text-muted display-4 mb-3"></i>
+                                            <p class="text-danger">Audio messages are currently disabled</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Recent Messages</h3>
+                    <span class="badge bg-primary">{{ guestbook_entries|length }}</span>
+                </div>
+                <div class="card-body">
+                    {% if guestbook_entries %}
+                        {% for entry in guestbook_entries[:5] %}
+                            <div class="message-card p-3 mb-3">
+                                <h5 class="mb-1">{{ entry.name }}</h5>
+                                <p class="text-muted small mb-2">{{ entry.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                                <p class="mb-0">{{ entry.message }}</p>
+                            </div>
+                        {% endfor %}
+                        {% if guestbook_entries|length > 5 %}
+                            <div class="text-center">
+                                <button class="btn btn-link" id="showAllMessages">View All Messages</button>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-book display-4 text-muted mb-3"></i>
+                            <p>No messages yet. Share the guestbook QR code with your guests.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Recent Photos</h3>
+                    <span class="badge bg-primary">{{ photos|length }}</span>
+                </div>
+                <div class="card-body">
+                    {% if photos %}
+                        <div class="photo-grid">
+                            {% for photo in photos[:6] %}
+                                <div class="photo-item">
+                                    <img src="{{ url_for('uploaded_file', folder='photos', filename=photo.filename) }}" alt="Photo by {{ photo.guest_name }}">
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if photos|length > 6 %}
+                            <div class="text-center mt-3">
+                                <button class="btn btn-link" id="showAllPhotos">View All Photos</button>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-camera display-4 text-muted mb-3"></i>
+                            <p>No photos yet. Share the photo sharing QR code with your guests.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Audio Messages</h3>
+                    <span class="badge bg-primary">{{ audio_messages|length }}</span>
+                </div>
+                <div class="card-body">
+                    {% if audio_messages %}
+                        <div class="row">
+                            {% for message in audio_messages %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="mb-1">{{ message.guest_name }}</h5>
+                                            <p class="text-muted small mb-2">{{ message.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                                            <audio controls class="audio-player">
+                                                <source src="{{ url_for('uploaded_file', folder='audio', filename=message.filename) }}" type="audio/mpeg">
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-microphone display-4 text-muted mb-3"></i>
+                            <p>No audio messages yet. Share the audio message QR code with your guests.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- All Messages Modal -->
+<div class="modal fade" id="allMessagesModal" tabindex="-1" aria-labelledby="allMessagesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="allMessagesModalLabel">All Guestbook Messages</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% for entry in guestbook_entries %}
+                    <div class="message-card p-3 mb-3">
+                        <h5 class="mb-1">{{ entry.name }}</h5>
+                        <p class="text-muted small mb-2">{{ entry.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                        <p class="mb-0">{{ entry.message }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- All Photos Modal -->
+<div class="modal fade" id="allPhotosModal" tabindex="-1" aria-labelledby="allPhotosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="allPhotosModalLabel">All Photos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="photo-grid">
+                    {% for photo in photos %}
+                        <div class="photo-item">
+                            <img src="{{ url_for('uploaded_file', folder='photos', filename=photo.filename) }}" alt="Photo by {{ photo.guest_name }}">
+                            {% if photo.caption %}
+                                <div class="p-2">
+                                    <p class="small mb-0">{{ photo.caption }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const showAllMessagesBtn = document.getElementById('showAllMessages');
+        if (showAllMessagesBtn) {
+            showAllMessagesBtn.addEventListener('click', function() {
+                const messagesModal = new bootstrap.Modal(document.getElementById('allMessagesModal'));
+                messagesModal.show();
+            });
+        }
+
+        const showAllPhotosBtn = document.getElementById('showAllPhotos');
+        if (showAllPhotosBtn) {
+            showAllPhotosBtn.addEventListener('click', function() {
+                const photosModal = new bootstrap.Modal(document.getElementById('allPhotosModal'));
+                photosModal.show();
+            });
+        }
+
+        // Handle copy link buttons
+        const copyButtons = document.querySelectorAll('.copy-link');
+        copyButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const link = this.getAttribute('data-link');
+                
+                // Create a temporary input element
+                const tempInput = document.createElement('input');
+                tempInput.value = link;
+                document.body.appendChild(tempInput);
+                
+                // Select the text
+                tempInput.select();
+                tempInput.setSelectionRange(0, 99999); // For mobile devices
+                
+                // Execute copy command
+                try {
+                    document.execCommand('copy');
+                    // Change button text temporarily
+                    const originalHTML = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check me-2"></i> Copied!';
+                    this.classList.remove('btn-outline-primary');
+                    this.classList.add('btn-success');
+                    
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        this.innerHTML = originalHTML;
+                        this.classList.remove('btn-success');
+                        this.classList.add('btn-outline-primary');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Could not copy text: ', err);
+                    alert('Failed to copy link. Please try again.');
+                }
+                
+                // Remove the temporary input
+                document.body.removeChild(tempInput);
+            });
+        });
+        
+        // Handle QR code download buttons
+        const downloadQrButtons = document.querySelectorAll('.download-qr, .download-qr-overlay');
+        downloadQrButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const qrData = this.getAttribute('data-qr');
+                const title = this.getAttribute('data-title');
+                
+                // Create a canvas to draw the QR code with label
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const padding = 60; // Increased padding for better layout
+                
+                // Create an image from the QR code
+                const qrImage = new Image();
+                qrImage.onload = function() {
+                    // Set canvas size to accommodate QR code and label
+                    const qrSize = qrImage.width;
+                    canvas.width = qrSize + 80; // Add padding on sides
+                    canvas.height = qrSize + padding + 80; // Add space for label and padding
+                    
+                    // Fill background with gradient
+                    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    gradient.addColorStop(0, '#ffffff');
+                    gradient.addColorStop(1, '#f8f9fa');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Add border
+                    ctx.strokeStyle = '#e9ecef';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(5, 5, canvas.width - 10, canvas.height - 10);
+                    
+                    // Draw QR code
+                    ctx.drawImage(qrImage, 40, 40);
+                    
+                    // Draw title
+                    ctx.fillStyle = '#333333';
+                    ctx.font = 'bold 18px Arial';
+                    ctx.textAlign = 'center';
+                    
+                    // Split title into parts (event name and QR type)
+                    const titleParts = title.split(' - ');
+                    ctx.fillText(titleParts[0], canvas.width / 2, qrSize + 60);
+                    
+                    if (titleParts.length > 1) {
+                        ctx.font = '16px Arial';
+                        ctx.fillStyle = '#666666';
+                        ctx.fillText(titleParts[1], canvas.width / 2, qrSize + 85);
+                    }
+                    
+                    // Add PortalShare branding
+                    ctx.font = '12px Arial';
+                    ctx.fillStyle = '#999999';
+                    ctx.fillText('Generated by PortalShare', canvas.width / 2, qrSize + 110);
+                    
+                    // Create download link
+                    const downloadLink = document.createElement('a');
+                    downloadLink.download = title.replace(/\s+/g, '_') + '_QR.png';
+                    downloadLink.href = canvas.toDataURL('image/png');
+                    downloadLink.click();
+                    
+                    // Show success feedback
+                    const originalHTML = button.innerHTML;
+                    
+                    if (button.classList.contains('download-qr-overlay')) {
+                        button.innerHTML = '<i class="fas fa-check"></i>';
+                        button.classList.remove('btn-light');
+                        button.classList.add('btn-success');
+                        
+                        // Reset overlay button after 2 seconds
+                        setTimeout(() => {
+                            button.innerHTML = originalHTML;
+                            button.classList.remove('btn-success');
+                            button.classList.add('btn-light');
+                        }, 2000);
+                    } else {
+                        button.innerHTML = '<i class="fas fa-check me-2"></i> Downloaded!';
+                        button.classList.remove('btn-outline-success');
+                        button.classList.add('btn-success');
+                        
+                        // Reset regular button after 2 seconds
+                        setTimeout(() => {
+                            button.innerHTML = originalHTML;
+                            button.classList.remove('btn-success');
+                            button.classList.add('btn-outline-success');
+                        }, 2000);
+                    }
+                };
+                qrImage.src = 'data:image/png;base64,' + qrData;
+            });
+        });
+    });
+</script>
+{% endblock %} 
