@@ -1,6 +1,6 @@
-# PortalShare - Digital Wedding Guestbook
+# PortalShare - Digital Event Guestbook
 
-PortalShare is a Flask-based web application that provides a modern digital guestbook solution for weddings and events. It allows guests to leave text messages, upload photos, and record audio messages, all accessible through QR codes.
+PortalShare is a Flask-based web application that provides a modern digital guestbook solution for events. It allows guests to leave text messages, upload photos, and record audio messages, all accessible through QR codes.
 
 ## Features
 
@@ -70,7 +70,7 @@ flask run
 ## Usage
 
 1. Register an account
-2. Create a new event for your wedding
+2. Create a new event
 3. Share the generated QR codes with your guests
 4. Guests can scan the QR codes to:
    - Leave messages in the guestbook
@@ -103,4 +103,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Icons by Font Awesome
 - Bootstrap for the responsive design
-- All the couples who make memories with PortalShare 
+- All the users who make memories with PortalShare 
