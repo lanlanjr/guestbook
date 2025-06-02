@@ -17,7 +17,7 @@
 
 .heart-icon {
     animation: heartbeat 1.5s infinite;
-    color: var(--secondary-colo);
+    color: var(--secondary-color);
 }
 
 /* Custom scrollbar */
