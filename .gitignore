@@ -26,9 +26,9 @@ ENV/
 env/
 
 # Flask
-# instance/
+instance/
 .webassets-cache
-# portalshare.db
+portalshare.db
 
 # Uploaded files
 static/uploads/
