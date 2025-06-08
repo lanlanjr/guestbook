@@ -2,6 +2,29 @@
 
 /* These styles complement the Bootstrap styles and are specific to the application */
 
+/* Profile Picture Styles */
+.profile-pic {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--primary-color);
+}
+
+.profile-pic-lg {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--primary-color);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.nav-link .rounded-circle {
+    object-fit: cover;
+    border: 1px solid #eee;
+}
+
 /* Animation for heart icon */
 @keyframes heartbeat {
     0% {

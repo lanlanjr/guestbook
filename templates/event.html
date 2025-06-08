@@ -95,6 +95,38 @@
                 <a href="{{ url_for('manage_content', event_uuid=event.uuid) }}" class="btn btn-outline-light btn-lg">
                     <i class="fas fa-cog me-2"></i> Manage Content
                 </a>
+                <button type="button" class="btn btn-outline-danger btn-lg ms-2" data-bs-toggle="modal" data-bs-target="#deleteEventModal">
+                    <i class="fas fa-trash-alt me-2"></i> Delete Event
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Event Modal -->
+    <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteEventModalLabel">Delete Event</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Are you sure you want to delete "{{ event.name }}"?</strong></p>
+                    <p>This action will permanently delete:</p>
+                    <ul>
+                        <li>All photos uploaded to this event</li>
+                        <li>All audio messages recorded</li>
+                        <li>All guestbook entries</li>
+                        <li>All event settings and details</li>
+                    </ul>
+                    <p class="text-danger"><strong>This action cannot be undone.</strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{{ url_for('delete_event', event_uuid=event.uuid) }}" method="post">
+                        <button type="submit" class="btn btn-danger">Delete Permanently</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

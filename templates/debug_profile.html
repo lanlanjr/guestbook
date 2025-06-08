@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Debug Profile - PortalShare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2>Debug Profile Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        {% if profile_data.profile_pic %}
+                        <div class="mb-3">
+                            <img src="{{ profile_data.profile_pic }}" alt="{{ profile_data.username }}" class="profile-pic-lg">
+                        </div>
+                        <div class="alert alert-info">
+                            <strong>Profile Picture URL:</strong> {{ profile_data.profile_pic }}
+                        </div>
+                        {% else %}
+                        <div class="mb-3">
+                            <i class="fas fa-user-circle" style="font-size: 100px; color: #ccc;"></i>
+                        </div>
+                        <div class="alert alert-warning">
+                            No profile picture URL found.
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <th>User ID</th>
+                                <td>{{ profile_data.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Username</th>
+                                <td>{{ profile_data.username }}</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td>{{ profile_data.email }}</td>
+                            </tr>
+                            <tr>
+                                <th>Google ID</th>
+                                <td>{{ profile_data.google_id or 'Not linked to Google' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Is Guest</th>
+                                <td>{{ 'Yes' if profile_data.is_guest else 'No' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="mt-4">
+                        <h4>Test Image Display</h4>
+                        <div class="alert alert-info">
+                            This section tests if the image URL can be displayed correctly.
+                        </div>
+                        
+                        {% if profile_data.profile_pic %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h5>Small (30x30)</h5>
+                                <img src="{{ profile_data.profile_pic }}" alt="Small" width="30" height="30" class="rounded-circle">
+                            </div>
+                            <div class="col-md-4">
+                                <h5>Medium (50x50)</h5>
+                                <img src="{{ profile_data.profile_pic }}" alt="Medium" width="50" height="50" class="rounded-circle">
+                            </div>
+                            <div class="col-md-4">
+                                <h5>Large (100x100)</h5>
+                                <img src="{{ profile_data.profile_pic }}" alt="Large" width="100" height="100" class="rounded-circle">
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            No profile picture URL to test.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

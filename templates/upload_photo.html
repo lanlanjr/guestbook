@@ -16,6 +16,24 @@
                 {% endif %}
             </div>
 
+            {% if current_user.is_authenticated %}
+                <div class="card mb-4">
+                    <div class="card-body p-3 d-flex align-items-center">
+                        {% if current_user.profile_pic %}
+                        <img src="{{ current_user.profile_pic }}" alt="Profile" class="rounded-circle me-3" style="width: 40px; height: 40px;">
+                        {% else %}
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <p class="mb-0">Signed in as <strong>{{ current_user.username }}</strong></p>
+                            <small class="text-muted">{{ current_user.email }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
             {% if event.photo_upload_enabled %}
             <div class="card mb-5">
                 <div class="card-body p-4">
@@ -23,7 +41,9 @@
                     <form method="POST" action="{{ url_for('submit_photo', event_uuid=event.uuid) }}" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="name" class="form-label">Your Name</label>
-                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name (optional)">
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="{{ current_user.username.split('_')[0] if '_' in current_user.username else current_user.username }}" readonly>
+                            <div class="form-text">Using your Google account name</div>
                         </div>
                         <div class="mb-3">
                             <label for="photo" class="form-label">Select Photo</label>

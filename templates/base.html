@@ -6,6 +6,8 @@
     <title>{% block title %}PortalShare - Digital Event Guestbook{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
     <!-- Google Fonts for themes -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;500;700&family=Ubuntu:wght@400;500;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
@@ -29,6 +31,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            padding-top: 56px; /* Add padding to body to account for fixed navbar */
         }
         
         .content-wrapper {
@@ -38,6 +41,10 @@
         .navbar {
             background-color: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed; /* Make navbar fixed */
+            top: 0; /* Position at the top */
+            width: 100%; /* Full width */
+            z-index: 1030; /* Ensure navbar stays above other content */
         }
         
         .navbar-brand {
@@ -150,7 +157,7 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body {% if event and event.theme %}class="theme-{{ event.theme }}"{% endif %}>
-    <nav class="navbar navbar-expand-lg navbar-light">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}">
                 <i class="fas fa-heart"></i> PortalShare
@@ -167,15 +174,26 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if current_user.profile_pic %}
+                            <img src="{{ current_user.profile_pic }}" alt="{{ current_user.username }}" class="rounded-circle me-2" width="30" height="30">
+                            {% else %}
+                            <i class="fas fa-user-circle me-2" style="font-size: 1.5rem;"></i>
+                            {% endif %}
+                            {{ current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                        <a class="nav-link" href="{{ url_for('login') }}">
+                            <i class="fab fa-google me-1"></i> Sign in with Google
+                        </a>
                     </li>
                     {% endif %}
                 </ul>
@@ -185,31 +203,121 @@
 
     <div class="content-wrapper">
         <div class="container mt-4">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-
+            <!-- Store flash messages in data attributes to be picked up by SweetAlert2 -->
+            <div id="flash-messages" style="display: none;">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div 
+                                class="flash-message" 
+                                data-message="{{ message }}" 
+                                data-category="{{ category if category != 'message' else 'info' }}">
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            
             {% block content %}{% endblock %}
         </div>
     </div>
-
-    <footer class="footer">
-        <div class="container" style="text-align: center;">
-                   <b>PortalShare</b> - Capture and cherish your event memories with our digital guestbook solutions.<br>
-                    &copy; 2025 PortalShare by A.IBO. All rights reserved.
+    
+    <footer class="footer mt-auto py-3">
+        <div class="container text-center">
+            <p class="mb-0">&copy; {{ now.year }} PortalShare. All rights reserved.</p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    
+    <!-- Admin confirmation dialogs -->
+    <script src="{{ url_for('static', filename='js/admin-confirmations.js') }}"></script>
+    
+    <!-- Script to handle flash messages with SweetAlert2 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Process flash messages
+            const flashMessages = document.querySelectorAll('.flash-message');
+            
+            flashMessages.forEach(function(flashMessage) {
+                const message = flashMessage.dataset.message;
+                const category = flashMessage.dataset.category;
+                
+                // Map Flask flash categories to SweetAlert2 types
+                const typeMap = {
+                    'success': 'success',
+                    'info': 'info',
+                    'warning': 'warning',
+                    'error': 'error',
+                    'danger': 'error'
+                };
+                
+                const type = typeMap[category] || 'info';
+                
+                // Define icons for each type
+                const iconMap = {
+                    'success': 'check-circle',
+                    'info': 'info-circle',
+                    'warning': 'exclamation-triangle',
+                    'error': 'exclamation-circle'
+                };
+                
+                const icon = iconMap[type];
+                
+                // Show the SweetAlert2 notification
+                Swal.fire({
+                    title: message,
+                    icon: type,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 5000,
+                    timerProgressBar: true,
+                    customClass: {
+                        popup: 'colored-toast',
+                        title: 'toast-title'
+                    },
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <style>
+        /* Custom styles for SweetAlert2 toasts */
+        .colored-toast {
+            border-radius: 10px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        }
+        
+        .colored-toast.swal2-icon-success {
+            border-left: 4px solid #a5dc86 !important;
+        }
+        
+        .colored-toast.swal2-icon-error {
+            border-left: 4px solid #f27474 !important;
+        }
+        
+        .colored-toast.swal2-icon-warning {
+            border-left: 4px solid #f8bb86 !important;
+        }
+        
+        .colored-toast.swal2-icon-info {
+            border-left: 4px solid #3fc3ee !important;
+        }
+        
+        .toast-title {
+            font-size: 1rem !important;
+            font-weight: 500 !important;
+            padding: 0.5rem 1rem !important;
+        }
+    </style>
+    
     {% block scripts %}{% endblock %}
 </body>
 </html> 

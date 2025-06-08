@@ -3,7 +3,6 @@
 {% block title %}Gallery - {{ event.name }} - PortalShare{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
 <style>
     .gallery-header {
         background: var(--gradient-bg, linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%));
@@ -27,6 +26,8 @@
         overflow: hidden;
         box-shadow: var(--card-shadow, 0 4px 6px rgba(0,0,0,0.1));
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: zoom-in;
+        user-select: none;
     }
     
     .gallery-item:hover {
@@ -38,6 +39,12 @@
         width: 100%;
         height: 250px;
         object-fit: cover;
+        transition: transform 0.3s ease;
+        display: block;
+    }
+    
+    .gallery-item:hover .gallery-img {
+        transform: scale(1.05);
     }
     
     .gallery-caption {
@@ -54,6 +61,193 @@
     
     .gallery-item:hover .gallery-caption {
         opacity: 1;
+    }
+    
+    .gallery-zoom-icon {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.9);
+        color: #333;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        z-index: 5;
+        font-size: 18px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        cursor: pointer;
+    }
+    
+    .gallery-item:hover .gallery-zoom-icon {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    
+    /* Carousel Styles */
+    .carousel {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .carousel-inner {
+        border-radius: 10px;
+    }
+    
+    .carousel-item {
+        height: 400px;
+        background-color: #f8f9fa;
+    }
+    
+    .carousel-photo-img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+    
+    .carousel-audio {
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 30px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    }
+    
+    .carousel-audio-icon {
+        font-size: 3rem;
+        color: white;
+        margin-bottom: 20px;
+    }
+    
+    .carousel-message {
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+        text-align: center;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    }
+    
+    .carousel-message-content {
+        font-size: 1.25rem;
+        font-style: italic;
+        color: #333;
+        max-width: 80%;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+    
+    .carousel-message-author {
+        margin-top: 20px;
+        font-weight: bold;
+    }
+    
+    .carousel-caption {
+        background: rgba(0, 0, 0, 0.453);
+        border-radius: 8px;
+        padding: 5px;
+        bottom: 15px;
+        max-width: 80%;
+        margin: 0 auto;
+        left: 10%;
+        right: 10%;
+    }
+    
+    .carousel-caption h5 {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+    }
+    
+    .carousel-caption p {
+        font-size: 1rem;
+        font-style: italic;
+    }
+    
+    /* Add a subtle text shadow to improve readability */
+    .carousel-caption h5, .carousel-caption p {
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    }
+    
+    .carousel-control-prev, .carousel-control-next {
+        width: 5%;
+        opacity: 0.8;
+    }
+    
+    .carousel-control-prev-icon, .carousel-control-next-icon {
+        background-color: var(--primary-color);
+        border-radius: 50%;
+        padding: 25px;
+        opacity: 0.80;
+    }
+    
+    .carousel-indicators {
+        margin-bottom: 0;
+    }
+    
+    .carousel-indicators li {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin: 0 5px;
+    }
+    
+    /* Collapsible Sections */
+    .toggle-icon {
+        transition: transform 0.3s ease;
+    }
+    
+    [aria-expanded="true"] .toggle-icon {
+        transform: rotate(180deg);
+    }
+    
+    .collapse.show {
+        animation: fadeIn 0.5s ease;
+    }
+    
+    .collapsing {
+        animation: fadeOut 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-10px); }
+    }
+    
+    .btn{
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 8px;
+        padding: 10px 15px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        margin: 3px 0px;
+    }
+
+    .btn-outline-primary {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        padding: 10px 15px;
+    }
+    
+    .btn-outline-primary:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     
     .section-title {
@@ -115,6 +309,8 @@
         max-height: 80vh;
         max-width: 100%;
         object-fit: contain;
+        border-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
     
     .modal-fullscreen {
@@ -131,14 +327,15 @@
         height: 100%;
         border: 0;
         border-radius: 0;
+        background-color: rgba(0, 0, 0, 0.9);
     }
     
     .modal-fullscreen .modal-body {
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: rgba(0, 0, 0, 0.9);
         padding: 0;
+        position: relative;
     }
     
     .modal-close-btn {
@@ -156,6 +353,104 @@
         align-items: center;
         justify-content: center;
         z-index: 1050;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+    
+    .modal-close-btn:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+    }
+    
+    .photo-navigation {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 1040;
+    }
+    
+    .nav-arrow {
+        background-color: rgba(255,255,255,0.2);
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 24px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+    
+    .nav-arrow:hover {
+        background-color: rgba(255,255,255,0.4);
+        transform: scale(1.1);
+    }
+    
+    .photo-caption {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        padding: 15px 20px;
+        opacity: 1;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        border-radius: 8px 8px 0 0;
+        max-width: 80%;
+        margin: 0 auto;
+        left: 10%;
+        right: 10%;
+        bottom: 20px;
+    }
+    
+    .photo-caption.hidden {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    
+    .photo-caption h4 {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    }
+    
+    .photo-caption p {
+        font-size: 1rem;
+        margin-bottom: 5px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    }
+    
+    .photo-caption p#photoDescription {
+        font-style: italic;
+    }
+    
+    .toggle-caption {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.5);
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1050;
+        transition: background-color 0.3s;
+    }
+    
+    .toggle-caption:hover {
+        background-color: rgba(255, 255, 255, 0.2);
     }
     
     .event-header {
@@ -210,49 +505,6 @@
         background-color: rgba(0,0,0,0.02);
         border-bottom: 1px solid rgba(0,0,0,0.05);
         padding: 15px 20px;
-    }
-    
-    .photo-navigation {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        padding: 0 20px;
-        z-index: 1040;
-    }
-    
-    .nav-arrow {
-        background-color: rgba(255,255,255,0.2);
-        color: white;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 24px;
-        transition: background-color 0.3s;
-    }
-    
-    .nav-arrow:hover {
-        background-color: rgba(255,255,255,0.4);
-    }
-    
-    .photo-caption {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: rgba(0,0,0,0.7);
-        color: white;
-        padding: 15px;
-    }
-    
-    .photo-caption h4 {
-        font-size: 1.1rem;
     }
     
     .audio-player-card {
@@ -338,6 +590,29 @@
             width: 35px;
             height: 35px;
         }
+        
+        /* Mobile-specific zoom icon styles */
+        .gallery-zoom-icon {
+            opacity: 0.8;
+            width: 44px;
+            height: 44px;
+            font-size: 20px;
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+        }
+        
+        .gallery-item .gallery-zoom-icon {
+            opacity: 0.8;
+        }
+        
+        .gallery-item:hover .gallery-zoom-icon {
+            opacity: 1;
+            transform: scale(1.15);
+        }
+        
+        .gallery-item {
+            cursor: default;
+        }
     }
     
     @media (max-width: 576px) {
@@ -403,6 +678,51 @@
             max-height: 70vh;
         }
     }
+    
+    /* Expand button for desktop carousel */
+    .carousel-expand-icon {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.9);
+        color: #333;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 5;
+        font-size: 18px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        cursor: pointer;
+        transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    
+    .carousel-expand-icon:hover {
+        transform: scale(1.1);
+        background-color: white;
+    }
+    
+    /* Adjust expand icon for audio and message carousels */
+    .carousel-audio .carousel-expand-icon,
+    .carousel-message .carousel-expand-icon {
+        top: 20px;
+        right: 20px;
+        background: rgba(255,255,255,0.8);
+    }
+    
+    .carousel-audio .carousel-expand-icon:hover,
+    .carousel-message .carousel-expand-icon:hover {
+        background: white;
+    }
+    
+    /* Hide expand icon on mobile */
+    @media (max-width: 767.98px) {
+        .carousel-expand-icon {
+            display: none;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -419,14 +739,14 @@
         <div class="container">
             <h1 class="display-4 fw-bold mb-3">{{ event.name }} Gallery</h1>
             <p class="lead mb-0">
-                <i class="fas fa-calendar-alt me-2"></i> {{ event.date.strftime('%B %d, %Y') }}
+                <i class="fas fa-calendar-alt me-2"></i> {{ event.date.strftime('%B %d, %Y') }}<br>
                 {% if event.location %}
-                <span class="mx-3">|</span>
-                <i class="fas fa-map-marker-alt me-2"></i> {{ event.location }}
+                <!-- <span class="mx-3">|</span> -->
+                <i class="fas fa-map-marker-alt me-2"></i> {{ event.location }}<br>
                 {% endif %}
                 {% if event.description %}
-                <span class="mx-3">|</span>
-                <i class="fas fa-info-circle me-2"></i> {{ event.description }}
+                <!-- <span class="mx-3">|</span> -->
+                <i class="fas fa-info-circle me-2"></i> {{ event.description }}<br>
                 {% endif %}
             </p>
             <div class="mt-4">
@@ -467,21 +787,71 @@
                 {% endif %}
             </div>
             {% if photos %}
-            <div class="gallery-grid">
-                {% for photo in photos %}
-                <div class="gallery-item" data-index="{{ loop.index0 }}">
-                    <img src="{{ url_for('uploaded_file', folder='photos', filename=photo.filename) }}" 
-                         alt="Photo by {{ photo.guest_name }}" 
-                         class="gallery-img"
-                         data-photo-index="{{ loop.index0 }}">
-                    <div class="gallery-caption">
-                        {% if photo.caption %}
-                            <p class="mb-0">{{ photo.caption }}</p>
-                        {% endif %}
-                        <small>By {{ photo.guest_name or 'Anonymous' }}</small>
-                    </div>
+            <!-- Photo Carousel -->
+            <div id="photoCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    {% for photo in photos %}
+                    <button type="button" data-bs-target="#photoCarousel" data-bs-slide-to="{{ loop.index0 }}" 
+                            {% if loop.first %}class="active" aria-current="true"{% endif %} 
+                            aria-label="Slide {{ loop.index }}"></button>
+                    {% endfor %}
                 </div>
-                {% endfor %}
+                <div class="carousel-inner">
+                    {% for photo in photos %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}">
+                        <img src="{{ url_for('uploaded_file', folder='photos', filename=photo.filename) }}" 
+                             class="carousel-photo-img" alt="Photo by {{ photo.guest_name }}">
+                        <div class="carousel-caption d-block">
+                            <h6 class="mb-1">By {{ photo.guest_name or 'Anonymous' }}</h6>
+                            {% if photo.caption %}
+                            <p class="mb-0">{{ photo.caption }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="gallery-zoom-icon" data-index="{{ loop.index0 }}">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                        <div class="carousel-expand-icon" data-index="{{ loop.index0 }}">
+                            <i class="fas fa-expand-alt"></i>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+            
+            <!-- Thumbnail Gallery Grid - Collapsible -->
+            <div class="mt-4 mb-3">
+                <button class="btn btn-outline-primary d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePhotoGrid" aria-expanded="false" aria-controls="collapsePhotoGrid">
+                    <span class="me-2">All Photos</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </button>
+            </div>
+            <div class="collapse" id="collapsePhotoGrid">
+                <div class="gallery-grid">
+                    {% for photo in photos %}
+                    <div class="gallery-item" data-index="{{ loop.index0 }}" data-bs-target="#photoCarousel" data-bs-slide-to="{{ loop.index0 }}">
+                        <img src="{{ url_for('uploaded_file', folder='photos', filename=photo.filename) }}" 
+                             alt="Photo by {{ photo.guest_name }}" 
+                             class="gallery-img">
+                        <div class="gallery-zoom-icon">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                        <div class="gallery-caption">
+                            {% if photo.caption %}
+                                <p class="mb-0">{{ photo.caption }}</p>
+                            {% endif %}
+                            <small>By {{ photo.guest_name or 'Anonymous' }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
             {% else %}
             <div class="card">
@@ -514,23 +884,73 @@
                 {% endif %}
             </div>
             {% if audio_messages %}
-            <div class="row row-cols-1 row-cols-md-2 g-4">
-                {% for message in audio_messages %}
-                <div class="col">
-                    <div class="card audio-card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ message.guest_name }}</h5>
-                            <p class="card-text text-muted">
+            <!-- Audio Carousel -->
+            <div id="audioCarousel" class="carousel slide" data-bs-ride="false" data-bs-interval="false">
+                <div class="carousel-indicators">
+                    {% for message in audio_messages %}
+                    <button type="button" data-bs-target="#audioCarousel" data-bs-slide-to="{{ loop.index0 }}" 
+                            {% if loop.first %}class="active" aria-current="true"{% endif %} 
+                            aria-label="Audio {{ loop.index }}"></button>
+                    {% endfor %}
+                </div>
+                <div class="carousel-inner">
+                    {% for message in audio_messages %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}">
+                        <div class="carousel-audio">
+                            <div class="carousel-audio-icon">
+                                <i class="fas fa-microphone"></i>
+                            </div>
+                            <h4 class="mb-3 text-white">{{ message.guest_name }}</h4>
+                            <p class="text-white mb-4">
                                 <small>{{ message.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
                             </p>
-                            <audio controls class="w-100">
+                            <audio controls class="w-75">
                                 <source src="{{ url_for('uploaded_file', folder='audio', filename=message.filename) }}" type="audio/mpeg">
                                 Your browser does not support the audio element.
                             </audio>
+                            <div class="carousel-expand-icon">
+                                <i class="fas fa-expand-alt"></i>
+                            </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#audioCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#audioCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+            
+            <!-- Audio Cards - Collapsible -->
+            <div class="mt-4 mb-3">
+                <button class="btn btn-outline-primary d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAudioGrid" aria-expanded="false" aria-controls="collapseAudioGrid">
+                    <span class="me-2">All Audio Messages</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </button>
+            </div>
+            <div class="collapse" id="collapseAudioGrid">
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    {% for message in audio_messages %}
+                    <div class="col">
+                        <div class="card audio-card h-100" data-bs-target="#audioCarousel" data-bs-slide-to="{{ loop.index0 }}">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ message.guest_name }}</h5>
+                                <p class="card-text text-muted">
+                                    <small>{{ message.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                                </p>
+                                <audio controls class="w-100">
+                                    <source src="{{ url_for('uploaded_file', folder='audio', filename=message.filename) }}" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
             {% else %}
             <div class="card">
@@ -563,20 +983,68 @@
                 {% endif %}
             </div>
             {% if guestbook_entries %}
-            <div class="row row-cols-1 row-cols-md-2 g-4">
-                {% for entry in guestbook_entries %}
-                <div class="col">
-                    <div class="card message-card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ entry.name }}</h5>
-                            <p class="card-text text-muted">
+            <!-- Messages Carousel -->
+            <div id="messageCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    {% for entry in guestbook_entries %}
+                    <button type="button" data-bs-target="#messageCarousel" data-bs-slide-to="{{ loop.index0 }}" 
+                            {% if loop.first %}class="active" aria-current="true"{% endif %} 
+                            aria-label="Message {{ loop.index }}"></button>
+                    {% endfor %}
+                </div>
+                <div class="carousel-inner">
+                    {% for entry in guestbook_entries %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}">
+                        <div class="carousel-message">
+                            <div class="carousel-message-content">
+                                "{{ entry.message }}"
+                            </div>
+                            <div class="carousel-message-author">
+                                — {{ entry.name }}
+                            </div>
+                            <div class="text-muted mt-2">
                                 <small>{{ entry.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
-                            </p>
-                            <p class="card-text">{{ entry.message }}</p>
+                            </div>
+                            <div class="carousel-expand-icon">
+                                <i class="fas fa-expand-alt"></i>
+                            </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#messageCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#messageCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+            
+            <!-- Message Cards - Collapsible -->
+            <div class="mt-4 mb-3">
+                <button class="btn btn-outline-primary d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMessageGrid" aria-expanded="false" aria-controls="collapseMessageGrid">
+                    <span class="me-2">All Guestbook Messages</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </button>
+            </div>
+            <div class="collapse" id="collapseMessageGrid">
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    {% for entry in guestbook_entries %}
+                    <div class="col">
+                        <div class="card message-card h-100" data-bs-target="#messageCarousel" data-bs-slide-to="{{ loop.index0 }}">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ entry.name }}</h5>
+                                <p class="card-text text-muted">
+                                    <small>{{ entry.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                                </p>
+                                <p class="card-text">{{ entry.message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
             {% else %}
             <div class="card">
@@ -614,6 +1082,9 @@
         <div class="modal-content">
             <div class="modal-body">
                 <img src="" class="photo-modal-img" id="modalImage" alt="Photo">
+                <button type="button" class="toggle-caption" id="toggleCaption">
+                    <i class="fas fa-info-circle"></i>
+                </button>
                 <div class="photo-caption" id="photoCaption">
                     <h4 id="photoGuestName" class="mb-1"></h4>
                     <p id="photoDescription" class="mb-1"></p>
@@ -623,47 +1094,72 @@
         </div>
     </div>
 </div>
+
+<!-- Audio Modal -->
+<div class="modal fade" id="audioModal" tabindex="-1" aria-labelledby="audioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="audioModalTitle">Audio Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-5" style="background: linear-gradient(135deg, #7f7fd5, #86a8e7, #91eae4);">
+                <div class="mb-4">
+                    <i class="fas fa-microphone fa-3x text-white mb-3"></i>
+                    <h3 id="audioModalGuestName" class="text-white mb-2"></h3>
+                    <p id="audioModalTimestamp" class="text-white mb-4">
+                        <small></small>
+                    </p>
+                </div>
+                <audio controls class="w-75 mb-4" id="audioModalPlayer">
+                    <source src="" type="audio/mpeg" id="audioModalSource">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Message Modal -->
+<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="messageModalTitle">Guestbook Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-5" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+                <div class="message-modal-content">
+                    <div class="message-modal-quote mb-4">
+                        <i class="fas fa-quote-left fa-2x text-white opacity-50 mb-3"></i>
+                        <h3 id="messageModalContent" class="text-white mb-4" style="font-size: 1.5rem; line-height: 1.6; font-style: italic;"></h3>
+                        <i class="fas fa-quote-right fa-2x text-white opacity-50"></i>
+                    </div>
+                    <div class="message-modal-author mt-4">
+                        <h4 id="messageModalAuthor" class="text-white mb-2"></h4>
+                        <p id="messageModalTimestamp" class="text-white">
+                            <small></small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Lightbox
-        lightbox.option({
-            'resizeDuration': 200,
-            'wrapAround': true,
-            'albumLabel': 'Photo %1 of %2',
-            'fadeDuration': 300,
-            'imageFadeDuration': 300,
-            'positionFromTop': 70
-        });
-
-        // Get the tab from URL hash if present
-        const hash = window.location.hash;
-        if (hash) {
-            const tab = document.querySelector(`[data-bs-target="${hash}"]`);
-            if (tab) {
-                const tabInstance = new bootstrap.Tab(tab);
-                tabInstance.show();
-            }
-        }
-
-        // Update URL hash when tab changes
-        const tabs = document.querySelectorAll('button[data-bs-toggle="tab"]');
-        tabs.forEach(tab => {
-            tab.addEventListener('shown.bs.tab', function(event) {
-                const target = event.target.getAttribute('data-bs-target');
-                history.replaceState(null, null, target);
-            });
-        });
-        
         // Photo modal functionality
-        const photoModal = new bootstrap.Modal(document.getElementById('photoModal'));
+        const photoModal = document.getElementById('photoModal');
+        const bsPhotoModal = new bootstrap.Modal(photoModal);
         const modalImage = document.getElementById('modalImage');
         const photoGuestName = document.getElementById('photoGuestName');
         const photoDescription = document.getElementById('photoDescription');
         const photoTimestamp = document.getElementById('photoTimestamp');
+        const photoCaption = document.getElementById('photoCaption');
+        const toggleCaption = document.getElementById('toggleCaption');
         const prevPhotoBtn = document.getElementById('prevPhoto');
         const nextPhotoBtn = document.getElementById('nextPhoto');
         
@@ -671,53 +1167,392 @@
         const photos = JSON.parse('{{ photos_json|safe }}');
         
         let currentPhotoIndex = 0;
+        let captionVisible = true;
         
-        // Add click event listeners to gallery images
-        const galleryImages = document.querySelectorAll('.gallery-img');
-        galleryImages.forEach(img => {
-            img.addEventListener('click', function() {
-                const photoIndex = parseInt(this.getAttribute('data-photo-index'));
+        // Detect if device is mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Initialize all carousels
+        const photoCarousel = document.getElementById('photoCarousel');
+        const audioCarousel = document.getElementById('audioCarousel');
+        const messageCarousel = document.getElementById('messageCarousel');
+        
+        let bsPhotoCarousel, bsAudioCarousel, bsMessageCarousel;
+        
+        // Initialize modals
+        const audioModal = document.getElementById('audioModal');
+        const messageModal = document.getElementById('messageModal');
+        const bsAudioModal = new bootstrap.Modal(audioModal);
+        const bsMessageModal = new bootstrap.Modal(messageModal);
+        
+        // Store audio and message data
+        const audioMessages = JSON.parse('{{ audio_messages_json|safe }}' || '[]');
+        const guestbookEntries = JSON.parse('{{ guestbook_entries_json|safe }}' || '[]');
+        
+        if (photoCarousel) {
+            bsPhotoCarousel = new bootstrap.Carousel(photoCarousel, {
+                interval: 5000,
+                wrap: true
+            });
+        }
+        
+        if (audioCarousel) {
+            bsAudioCarousel = new bootstrap.Carousel(audioCarousel, {
+                interval: false,
+                wrap: true
+            });
+        }
+        
+        if (messageCarousel) {
+            bsMessageCarousel = new bootstrap.Carousel(messageCarousel, {
+                interval: 7000,
+                wrap: true
+            });
+        }
+        
+        // Handle collapsible sections
+        const collapsibleButtons = document.querySelectorAll('[data-bs-toggle="collapse"]');
+        collapsibleButtons.forEach(button => {
+            // Initialize collapse instances
+            const targetId = button.getAttribute('data-bs-target');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                new bootstrap.Collapse(targetElement, {
+                    toggle: false
+                });
+            }
+            
+            // Add click event listener for custom animation
+            button.addEventListener('click', function() {
+                const isExpanded = button.getAttribute('aria-expanded') === 'true';
+                const icon = button.querySelector('.toggle-icon');
+                
+                // We don't need to manually toggle the collapse as Bootstrap does it
+                // Just add any additional animations or logic here if needed
+                if (icon) {
+                    // The CSS handles the rotation based on aria-expanded
+                    // This is just for any additional JS-based animations
+                }
+            });
+        });
+        
+        // Add click event listeners to gallery items (only for desktop)
+        const galleryItems = document.querySelectorAll('.gallery-item');
+        if (!isMobile) {
+            galleryItems.forEach((item, index) => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Check if this gallery item is linked to a carousel
+                    const targetCarousel = this.getAttribute('data-bs-target');
+                    const slideIndex = this.getAttribute('data-bs-slide-to');
+                    
+                    if (targetCarousel && slideIndex !== null) {
+                        // Navigate to the carousel slide
+                        const carousel = document.querySelector(targetCarousel);
+                        if (carousel) {
+                            const bsCarousel = bootstrap.Carousel.getInstance(carousel);
+                            if (bsCarousel) {
+                                bsCarousel.to(parseInt(slideIndex));
+                            }
+                        }
+                    } else {
+                        // Use the original photo modal functionality
+                        currentPhotoIndex = index;
+                        showPhoto(currentPhotoIndex);
+                        bsPhotoModal.show();
+                    }
+                });
+            });
+        }
+        
+        // Add click event handlers for audio and message cards
+        const audioCards = document.querySelectorAll('.audio-card');
+        audioCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('audio')) {  // Don't trigger when clicking audio controls
+                    const targetCarousel = this.getAttribute('data-bs-target');
+                    const slideIndex = this.getAttribute('data-bs-slide-to');
+                    
+                    if (targetCarousel && slideIndex !== null) {
+                        const carousel = document.querySelector(targetCarousel);
+                        if (carousel) {
+                            const bsCarousel = bootstrap.Carousel.getInstance(carousel);
+                            if (bsCarousel) {
+                                bsCarousel.to(parseInt(slideIndex));
+                                
+                                // Scroll to carousel
+                                carousel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        }
+                    }
+                }
+            });
+        });
+        
+        const messageCards = document.querySelectorAll('.message-card');
+        messageCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                const targetCarousel = this.getAttribute('data-bs-target');
+                const slideIndex = this.getAttribute('data-bs-slide-to');
+                
+                if (targetCarousel && slideIndex !== null) {
+                    const carousel = document.querySelector(targetCarousel);
+                    if (carousel) {
+                        const bsCarousel = bootstrap.Carousel.getInstance(carousel);
+                        if (bsCarousel) {
+                            bsCarousel.to(parseInt(slideIndex));
+                            
+                            // Scroll to carousel
+                            carousel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                }
+            });
+        });
+        
+        // Add specific click handlers for zoom icons (for all devices)
+        const zoomIcons = document.querySelectorAll('.gallery-zoom-icon');
+        zoomIcons.forEach((icon, index) => {
+            icon.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation(); // Prevent double triggering with parent click
+                
+                // Get the photo index from the carousel item if available
+                const carouselItem = this.closest('.carousel-item');
+                let photoIndex = index;
+                
+                if (carouselItem) {
+                    photoIndex = parseInt(carouselItem.getAttribute('data-index') || index);
+                } else {
+                    const galleryItem = this.closest('.gallery-item');
+                    if (galleryItem) {
+                        photoIndex = parseInt(galleryItem.getAttribute('data-index') || index);
+                    }
+                }
+                
                 currentPhotoIndex = photoIndex;
                 showPhoto(currentPhotoIndex);
-                photoModal.show();
+                bsPhotoModal.show();
+            });
+        });
+        
+        // Add click handlers for expand icons (desktop only)
+        const expandIcons = document.querySelectorAll('.carousel-expand-icon');
+        expandIcons.forEach((icon, index) => {
+            icon.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation(); // Prevent double triggering with parent click
+                
+                // Check which carousel this expand icon belongs to
+                const carouselItem = this.closest('.carousel-item');
+                if (!carouselItem) return;
+                
+                const carouselAudio = carouselItem.querySelector('.carousel-audio');
+                const carouselMessage = carouselItem.querySelector('.carousel-message');
+                
+                if (carouselItem.closest('#photoCarousel')) {
+                    // Handle photo expand
+                    let photoIndex = index;
+                    photoIndex = parseInt(carouselItem.getAttribute('data-index') || index);
+                    currentPhotoIndex = photoIndex;
+                    showPhoto(currentPhotoIndex);
+                    bsPhotoModal.show();
+                } 
+                else if (carouselAudio) {
+                    // Handle audio expand
+                    const audioIndex = Array.from(audioCarousel.querySelectorAll('.carousel-item')).indexOf(carouselItem);
+                    if (audioIndex >= 0 && audioMessages && audioMessages.length > audioIndex) {
+                        showAudioModal(audioIndex);
+                        bsAudioModal.show();
+                    }
+                } 
+                else if (carouselMessage) {
+                    // Handle message expand
+                    const messageIndex = Array.from(messageCarousel.querySelectorAll('.carousel-item')).indexOf(carouselItem);
+                    if (messageIndex >= 0 && guestbookEntries && guestbookEntries.length > messageIndex) {
+                        showMessageModal(messageIndex);
+                        bsMessageModal.show();
+                    }
+                }
             });
         });
         
         // Show photo in modal
         function showPhoto(index) {
+            if (!photos || photos.length === 0 || index < 0 || index >= photos.length) {
+                console.error('Invalid photo index or no photos available');
+                return;
+            }
+            
             const photo = photos[index];
             modalImage.src = photo.url;
-            photoGuestName.textContent = photo.guest_name;
-            photoDescription.textContent = photo.caption;
-            photoTimestamp.textContent = photo.timestamp;
+            photoGuestName.textContent = 'By ' + (photo.guest_name || 'Anonymous');
+            photoDescription.textContent = photo.caption || '';
+            photoTimestamp.textContent = photo.timestamp || '';
+            
+            // Show/hide elements based on content
+            photoDescription.style.display = photo.caption ? 'block' : 'none';
+            
+            // Reset caption visibility
+            if (!captionVisible) {
+                toggleCaptionVisibility();
+            }
+        }
+        
+        // Toggle caption visibility
+        function toggleCaptionVisibility() {
+            captionVisible = !captionVisible;
+            if (captionVisible) {
+                photoCaption.classList.remove('hidden');
+                toggleCaption.innerHTML = '<i class="fas fa-info-circle"></i>';
+            } else {
+                photoCaption.classList.add('hidden');
+                toggleCaption.innerHTML = '<i class="fas fa-info"></i>';
+            }
+        }
+        
+        // Toggle caption button click
+        if (toggleCaption) {
+            toggleCaption.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleCaptionVisibility();
+            });
         }
         
         // Navigate to previous photo
-        prevPhotoBtn.addEventListener('click', function() {
-            currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
-            showPhoto(currentPhotoIndex);
-        });
+        if (prevPhotoBtn) {
+            prevPhotoBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (photos.length > 1) {
+                    currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+                    showPhoto(currentPhotoIndex);
+                }
+            });
+        }
         
         // Navigate to next photo
-        nextPhotoBtn.addEventListener('click', function() {
-            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
-            showPhoto(currentPhotoIndex);
-        });
+        if (nextPhotoBtn) {
+            nextPhotoBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (photos.length > 1) {
+                    currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+                    showPhoto(currentPhotoIndex);
+                }
+            });
+        }
         
         // Keyboard navigation
         document.addEventListener('keydown', function(e) {
-            if (document.querySelector('#photoModal.show')) {
-                if (e.key === 'ArrowLeft') {
+            if (photoModal.classList.contains('show')) {
+                if (e.key === 'ArrowLeft' && photos.length > 1) {
                     currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
                     showPhoto(currentPhotoIndex);
-                } else if (e.key === 'ArrowRight') {
+                } else if (e.key === 'ArrowRight' && photos.length > 1) {
                     currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
                     showPhoto(currentPhotoIndex);
                 } else if (e.key === 'Escape') {
-                    photoModal.hide();
+                    bsPhotoModal.hide();
+                } else if (e.key === 'i') {
+                    toggleCaptionVisibility();
                 }
             }
         });
+        
+        // Touch swipe functionality for photo modal
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        if (photoModal) {
+            photoModal.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            }, false);
+            
+            photoModal.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, false);
+        }
+        
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            if (touchEndX < touchStartX - swipeThreshold) {
+                // Swipe left, go to next photo
+                if (photos.length > 1) {
+                    currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+                    showPhoto(currentPhotoIndex);
+                }
+            }
+            if (touchEndX > touchStartX + swipeThreshold) {
+                // Swipe right, go to previous photo
+                if (photos.length > 1) {
+                    currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+                    showPhoto(currentPhotoIndex);
+                }
+            }
+        }
+        
+        // Make carousel thumbnails and cards interactive
+        document.querySelectorAll('[data-bs-target][data-bs-slide-to]').forEach(element => {
+            if (!element.classList.contains('carousel-item') && 
+                !element.classList.contains('carousel-control-prev') && 
+                !element.classList.contains('carousel-control-next')) {
+                
+                element.style.cursor = 'pointer';
+                
+                // Add hover effect for cards
+                if (element.classList.contains('card')) {
+                    element.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-5px)';
+                        this.style.boxShadow = '0 10px 20px rgba(0,0,0,0.15)';
+                    });
+                    
+                    element.addEventListener('mouseleave', function() {
+                        this.style.transform = '';
+                        this.style.boxShadow = '';
+                    });
+                }
+            }
+        });
+        
+        // Show audio in modal
+        function showAudioModal(index) {
+            if (!audioMessages || audioMessages.length === 0 || index < 0 || index >= audioMessages.length) {
+                console.error('Invalid audio index or no audio available');
+                return;
+            }
+            
+            const message = audioMessages[index];
+            const audioModalGuestName = document.getElementById('audioModalGuestName');
+            const audioModalTimestamp = document.getElementById('audioModalTimestamp').querySelector('small');
+            const audioModalPlayer = document.getElementById('audioModalPlayer');
+            const audioModalSource = document.getElementById('audioModalSource');
+            
+            audioModalGuestName.textContent = message.guest_name || 'Anonymous';
+            audioModalTimestamp.textContent = message.timestamp || '';
+            audioModalSource.src = message.url;
+            audioModalPlayer.load(); // Reload the audio player with the new source
+        }
+        
+        // Show message in modal
+        function showMessageModal(index) {
+            if (!guestbookEntries || guestbookEntries.length === 0 || index < 0 || index >= guestbookEntries.length) {
+                console.error('Invalid message index or no messages available');
+                return;
+            }
+            
+            const entry = guestbookEntries[index];
+            const messageModalContent = document.getElementById('messageModalContent');
+            const messageModalAuthor = document.getElementById('messageModalAuthor');
+            const messageModalTimestamp = document.getElementById('messageModalTimestamp').querySelector('small');
+            
+            messageModalContent.textContent = entry.message || '';
+            messageModalAuthor.textContent = '— ' + (entry.name || 'Anonymous');
+            messageModalTimestamp.textContent = entry.timestamp || '';
+        }
     });
 </script>
 {% endblock %} 
