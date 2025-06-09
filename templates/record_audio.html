@@ -488,7 +488,195 @@
             }
         }
         
-        // ... rest of the existing audio recording functions ...
+        // Create audio wave visualization
+        function createAudioWave() {
+            if (!audioWave) return;
+            
+            // Create 50 bars for the audio wave visualization
+            for (let i = 0; i < 50; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'wave-bar';
+                bar.style.height = '0px';
+                audioWave.appendChild(bar);
+            }
+        }
+        
+        // Start the recording process
+        function startRecording() {
+            // Request microphone access
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(function(stream) {
+                    audioStream = stream;
+                    
+                    // Set up media recorder
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    
+                    // Collect audio chunks
+                    mediaRecorder.addEventListener('dataavailable', function(e) {
+                        audioChunks.push(e.data);
+                    });
+                    
+                    // Handle recording completion
+                    mediaRecorder.addEventListener('stop', function() {
+                        // Create audio blob from chunks
+                        audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const audioURL = URL.createObjectURL(audioBlob);
+                        audioPlayer.src = audioURL;
+                        
+                        // Stop the audio visualization
+                        if (analyser) {
+                            cancelAnimationFrame(drawVisual);
+                        }
+                        
+                        // Stop all tracks in the stream
+                        audioStream.getTracks().forEach(track => track.stop());
+                        
+                        // Show audio preview
+                        audioPreview.classList.remove('d-none');
+                        
+                        // Update recording status
+                        recordingStatus.textContent = 'Recording complete';
+                        recordingIndicator.classList.add('d-none');
+                    });
+                    
+                    // Start recording
+                    mediaRecorder.start();
+                    
+                    // Set up audio visualization
+                    setupAudioVisualization(stream);
+                    
+                    // Update UI for recording state
+                    recordButton.classList.add('d-none');
+                    stopButton.classList.remove('d-none');
+                    recordingIndicator.classList.remove('d-none');
+                    recordingStatus.textContent = 'Recording...';
+                    
+                    // Start timer
+                    startTime = Date.now();
+                    timerInterval = setInterval(updateTimer, 1000);
+                    
+                    // Reset timer display
+                    timerDisplay.textContent = '00:00';
+                })
+                .catch(function(err) {
+                    console.error('Error accessing microphone:', err);
+                    alert('Error accessing your microphone. Please ensure your browser has permission to use your microphone.');
+                });
+        }
+        
+        // Stop the recording
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                clearInterval(timerInterval);
+                recordingDuration = Math.floor((Date.now() - startTime) / 1000);
+                formDuration.value = formatTime(recordingDuration);
+                
+                // Update UI
+                stopButton.classList.add('d-none');
+            }
+        }
+        
+        // Reset recording state
+        function resetRecording() {
+            audioPreview.classList.add('d-none');
+            recordButton.classList.remove('d-none');
+            recordingStatus.textContent = 'Ready to record';
+            timerDisplay.textContent = '00:00';
+            recordingDuration = 0;
+            
+            // Reset audio wave
+            const waveBars = audioWave.querySelectorAll('.wave-bar');
+            waveBars.forEach(bar => {
+                bar.style.height = '0px';
+            });
+        }
+        
+        // Save the recording
+        function saveRecording() {
+            if (!audioBlob) {
+                alert('No recording to save.');
+                return;
+            }
+            
+            // Create a file from the blob
+            const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
+            
+            // Set up form data
+            formName.value = document.getElementById('name').value;
+            
+            // Create a FileList-like object
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(audioFile);
+            formAudio.files = dataTransfer.files;
+            
+            // Submit the form
+            audioForm.submit();
+        }
+        
+        // Update the timer display
+        function updateTimer() {
+            const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+            timerDisplay.textContent = formatTime(elapsedSeconds);
+            
+            // Stop recording after 3 minutes (180 seconds)
+            if (elapsedSeconds >= 180) {
+                stopRecording();
+            }
+        }
+        
+        // Format time as MM:SS
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Set up audio visualization
+        function setupAudioVisualization(stream) {
+            // Create audio context
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            
+            // Connect the stream to the analyser
+            source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            
+            // Configure analyser
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            // Get the wave bars
+            const waveBars = audioWave.querySelectorAll('.wave-bar');
+            
+            // Draw function for visualization
+            function draw() {
+                drawVisual = requestAnimationFrame(draw);
+                
+                analyser.getByteFrequencyData(dataArray);
+                
+                // Calculate the average value for each bar
+                const barCount = waveBars.length;
+                const step = Math.floor(bufferLength / barCount);
+                
+                for (let i = 0; i < barCount; i++) {
+                    let sum = 0;
+                    for (let j = 0; j < step; j++) {
+                        sum += dataArray[i * step + j];
+                    }
+                    const average = sum / step;
+                    
+                    // Scale the height (0-100px)
+                    const height = (average / 255) * 80;
+                    waveBars[i].style.height = `${height}px`;
+                }
+            }
+            
+            // Start drawing
+            draw();
+        }
     });
 </script>
 {% endblock %} 
