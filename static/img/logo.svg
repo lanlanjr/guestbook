@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Elegant background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0f7ff" />
+      <stop offset="100%" stop-color="#e5f0ff" />
+    </linearGradient>
+    <linearGradient id="portalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f5f9ff" />
+    </linearGradient>
+    <linearGradient id="photoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#69b0ff" />
+      <stop offset="100%" stop-color="#5086e1" />
+    </linearGradient>
+    <linearGradient id="voiceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff9486" />
+      <stop offset="100%" stop-color="#ff6b5b" />
+    </linearGradient>
+    <linearGradient id="messageGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#70d998" />
+      <stop offset="100%" stop-color="#4cc07a" />
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+      <feOffset dx="0" dy="2" result="offsetblur" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.2" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background Circle with gradient -->
+  <circle cx="100" cy="100" r="95" fill="url(#bgGradient)" stroke="#4b7bec" stroke-width="2" filter="url(#softShadow)" />
+  
+  <!-- Portal/Archway design -->
+  <path d="M60,45 C60,80 140,80 140,45 L140,135 C140,100 60,100 60,135 Z" fill="url(#portalGradient)" stroke="#4b7bec" stroke-width="1.5" filter="url(#softShadow)" />
+  
+  <!-- Decorative arch -->
+  <path d="M60,45 C60,80 140,80 140,45" fill="none" stroke="#4b7bec" stroke-width="1.5" stroke-linecap="round" />
+  
+  <!-- Sharing icons - more elegant versions -->
+  <!-- Photo icon -->
+  <circle cx="74" cy="75" r="12" fill="#ffffff" stroke="url(#photoGradient)" stroke-width="1.5" />
+  <path d="M66,79 L72,74 L76,78 L83,71" fill="none" stroke="#5f95f7" stroke-width="1.5" stroke-linecap="round" />
+  <circle cx="74" cy="71" r="1.5" fill="#5f95f7" />
+  
+  <!-- Voice message icon -->
+  <!-- Microphone icon -->
+  <circle cx="126" cy="75" r="12" fill="#ffffff" stroke="url(#voiceGradient)" stroke-width="1.5" />
+  <rect x="122" y="66" width="8" height="15" rx="4" ry="4" fill="#ffffff" stroke="url(#voiceGradient)" stroke-width="1.5" />
+  <path d="M118,76 C118,80 122,84 126,84 C130,84 134,80 134,76" fill="none" stroke="url(#voiceGradient)" stroke-width="1.5" stroke-linecap="round" />
+  <path d="M126,88 L126,92" stroke="url(#voiceGradient)" stroke-width="1.5" stroke-linecap="round" />
+  <path d="M122,92 L130,92" stroke="url(#voiceGradient)" stroke-width="1.5" stroke-linecap="round" />
+  
+  <!-- Text/message icon -->
+  <path d="M82,105 C82,101 86,98 90,98 L110,98 C114,98 118,101 118,105 L118,115 C118,119 114,122 110,122 L90,122 C86,122 82,119 82,115 Z" fill="#ffffff" stroke="url(#messageGradient)" stroke-width="1.5" />
+  <path d="M90,110 L110,110" stroke="#55c781" stroke-width="1" stroke-linecap="round" />
+  <path d="M90,115 L105,115" stroke="#55c781" stroke-width="1" stroke-linecap="round" />
+  
+  <!-- Connection lines - for sharing concept -->
+  <path d="M100,85 L100,98" stroke="#a3b1c6" stroke-width="0.75" stroke-dasharray="2,2" />
+  <path d="M100,75 L100,86" stroke="#a3b1c6" stroke-width="0.75" stroke-dasharray="2,2" />
+  <path d="M87,75 L97,75 L115,75" stroke="#a3b1c6" stroke-width="0.75" stroke-dasharray="2,2" />
+  
+  <!-- Colorful dots at connection points -->
+  <circle cx="100" cy="85" r="2" fill="#feca57" />
+  <circle cx="100" cy="75" r="2" fill="#ff9ff3" />
+  <circle cx="100" cy="98" r="2" fill="#1dd1a1" />
+  <!-- App Name with gradient -->
+  <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#4b7bec" />
+    <stop offset="50%" stop-color="#3867d6" />
+    <stop offset="100%" stop-color="#4b7bec" />
+  </linearGradient>
+  <text x="100" y="150" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-weight="bold" font-size="16" text-anchor="middle" fill="url(#textGradient)" letter-spacing="1.5">PortalShare</text>
+  
+  <!-- Tagline with colorful bullets -->
+  <text x="70" y="160" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-weight="300" font-size="7" text-anchor="middle" fill="#5f95f7">Photos</text>
+  <text x="88" y="160" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-weight="300" font-size="7" text-anchor="middle" fill="#718096">•</text>
+  <text x="100" y="160" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-weight="300" font-size="7" text-anchor="middle" fill="#ff7675">Voice</text>
+  <text x="112" y="160" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-weight="300" font-size="7" text-anchor="middle" fill="#718096">•</text>
+  <text x="130" y="160" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-weight="300" font-size="7" text-anchor="middle" fill="#55c781">Messages</text>
+</svg> 

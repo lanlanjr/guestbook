@@ -9,7 +9,7 @@
         <div class="col-md-6">
             <h1 class="display-4 fw-bold">Capture Every Moment of Your Special Day</h1>
             <p class="lead my-4">PortalShare transforms how you collect and cherish memories from your event with our digital guestbook, photo sharing, and audio message features.</p>
-            <div class="d-flex gap-3">
+            <div class="d-flex gap-3 justify-content-center mb-3">
                 {% if current_user.is_authenticated %}
                 <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
                 {% else %}
