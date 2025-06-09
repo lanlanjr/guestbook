@@ -268,7 +268,8 @@ def register_routes(app):
             entry = GuestbookEntry(
                 name=name,
                 message=message,
-                event_id=event.id
+                event_id=event.id,
+                user_id=current_user.id
             )
             
             db.session.add(entry)
@@ -327,7 +328,8 @@ def register_routes(app):
                     original_filename=secure_filename(photo.filename),
                     guest_name=guest_name,
                     caption=caption,
-                    event_id=event.id
+                    event_id=event.id,
+                    user_id=current_user.id
                 )
                 
                 db.session.add(new_photo)
@@ -388,7 +390,8 @@ def register_routes(app):
                     filename=filename,
                     guest_name=guest_name,
                     duration=duration,
-                    event_id=event.id
+                    event_id=event.id,
+                    user_id=current_user.id
                 )
                 
                 db.session.add(new_audio)
@@ -898,4 +901,221 @@ def register_routes(app):
         db.session.commit()
         
         flash(f'Event "{event_name}" has been permanently deleted.', 'success')
-        return redirect(url_for('dashboard')) 
+        return redirect(url_for('dashboard'))
+    
+    # Routes for guests to delete their own content
+    @app.route('/event/<uuid:event_uuid>/delete-own-photo', methods=['POST'])
+    def delete_own_photo(event_uuid):
+        # User must be logged in
+        if not current_user.is_authenticated:
+            flash('You must be logged in to delete content.', 'error')
+            return redirect(url_for('guest_login', event_uuid=event_uuid))
+            
+        event = Event.query.filter_by(uuid=str(event_uuid)).first_or_404()
+        photo_id = request.args.get('photo_id')
+        
+        if not photo_id:
+            flash('No photo specified.', 'error')
+            return redirect(url_for('upload_photo', event_uuid=event_uuid))
+            
+        photo = Photo.query.filter_by(id=photo_id, event_id=event.id).first_or_404()
+        
+        # Check if the current user is the one who uploaded this photo
+        if photo.user_id != current_user.id:
+            flash('You can only delete photos that you uploaded.', 'error')
+            return redirect(url_for('upload_photo', event_uuid=event_uuid))
+        
+        # Delete the file from the filesystem
+        try:
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], 'photos', photo.filename))
+        except Exception as e:
+            app.logger.error(f"Error deleting photo file: {e}")
+        
+        db.session.delete(photo)
+        db.session.commit()
+        
+        flash('Your photo has been deleted successfully.', 'success')
+        return redirect(url_for('upload_photo', event_uuid=event_uuid))
+    
+    @app.route('/event/<uuid:event_uuid>/delete-own-audio', methods=['POST'])
+    def delete_own_audio(event_uuid):
+        # User must be logged in
+        if not current_user.is_authenticated:
+            flash('You must be logged in to delete content.', 'error')
+            return redirect(url_for('guest_login', event_uuid=event_uuid))
+            
+        event = Event.query.filter_by(uuid=str(event_uuid)).first_or_404()
+        audio_id = request.args.get('audio_id')
+        
+        if not audio_id:
+            flash('No audio message specified.', 'error')
+            return redirect(url_for('record_audio', event_uuid=event_uuid))
+            
+        audio = AudioMessage.query.filter_by(id=audio_id, event_id=event.id).first_or_404()
+        
+        # Check if the current user is the one who uploaded this audio
+        if audio.user_id != current_user.id:
+            flash('You can only delete audio messages that you recorded.', 'error')
+            return redirect(url_for('record_audio', event_uuid=event_uuid))
+        
+        # Delete the file from the filesystem
+        try:
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], 'audio', audio.filename))
+        except Exception as e:
+            app.logger.error(f"Error deleting audio file: {e}")
+        
+        db.session.delete(audio)
+        db.session.commit()
+        
+        flash('Your audio message has been deleted successfully.', 'success')
+        return redirect(url_for('record_audio', event_uuid=event_uuid))
+    
+    @app.route('/event/<uuid:event_uuid>/delete-own-message', methods=['POST'])
+    def delete_own_message(event_uuid):
+        # User must be logged in
+        if not current_user.is_authenticated:
+            flash('You must be logged in to delete content.', 'error')
+            return redirect(url_for('guest_login', event_uuid=event_uuid))
+            
+        event = Event.query.filter_by(uuid=str(event_uuid)).first_or_404()
+        message_id = request.args.get('message_id')
+        
+        if not message_id:
+            flash('No message specified.', 'error')
+            return redirect(url_for('guestbook', event_uuid=event_uuid))
+            
+        message = GuestbookEntry.query.filter_by(id=message_id, event_id=event.id).first_or_404()
+        
+        # Check if the current user is the one who posted this message
+        if message.user_id != current_user.id:
+            flash('You can only delete messages that you posted.', 'error')
+            return redirect(url_for('guestbook', event_uuid=event_uuid))
+        
+        db.session.delete(message)
+        db.session.commit()
+        
+        flash('Your message has been deleted successfully.', 'success')
+        return redirect(url_for('guestbook', event_uuid=event_uuid))
+
+    # API routes for getting user's own content
+    @app.route('/api/event/<uuid:event_uuid>/my-photos')
+    def api_my_photos(event_uuid):
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+            
+        event = Event.query.filter_by(uuid=str(event_uuid)).first_or_404()
+        photos = Photo.query.filter_by(event_id=event.id, user_id=current_user.id).order_by(Photo.created_at.desc()).all()
+        
+        result = []
+        for photo in photos:
+            result.append({
+                'id': photo.id,
+                'url': url_for('uploaded_file', folder='photos', filename=photo.filename),
+                'guest_name': photo.guest_name,
+                'caption': photo.caption,
+                'created_at': photo.created_at.isoformat()
+            })
+        
+        return jsonify(result)
+    
+    @app.route('/api/event/<uuid:event_uuid>/my-audio')
+    def api_my_audio(event_uuid):
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+            
+        event = Event.query.filter_by(uuid=str(event_uuid)).first_or_404()
+        messages = AudioMessage.query.filter_by(event_id=event.id, user_id=current_user.id).order_by(AudioMessage.created_at.desc()).all()
+        
+        result = []
+        for message in messages:
+            result.append({
+                'id': message.id,
+                'url': url_for('uploaded_file', folder='audio', filename=message.filename),
+                'guest_name': message.guest_name,
+                'duration': message.duration,
+                'created_at': message.created_at.isoformat()
+            })
+        
+        return jsonify(result)
+    
+    @app.route('/api/event/<uuid:event_uuid>/my-messages')
+    def api_my_messages(event_uuid):
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+            
+        event = Event.query.filter_by(uuid=str(event_uuid)).first_or_404()
+        entries = GuestbookEntry.query.filter_by(event_id=event.id, user_id=current_user.id).order_by(GuestbookEntry.created_at.desc()).all()
+        
+        result = []
+        for entry in entries:
+            result.append({
+                'id': entry.id,
+                'name': entry.name,
+                'message': entry.message,
+                'created_at': entry.created_at.isoformat()
+            })
+        
+        return jsonify(result)
+    
+    @app.route('/api/event/<uuid:event_uuid>/photos/<int:photo_id>/delete', methods=['POST'])
+    def api_delete_photo(event_uuid, photo_id):
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+            
+        event = Event.query.filter_by(uuid=str(event_uuid)).first_or_404()
+        photo = Photo.query.filter_by(id=photo_id, event_id=event.id).first_or_404()
+        
+        # Check if user is allowed to delete (either owner or uploader)
+        if photo.user_id != current_user.id and event.user_id != current_user.id:
+            return jsonify({'error': 'Not authorized to delete this content'}), 403
+        
+        # Delete the file from the filesystem
+        try:
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], 'photos', photo.filename))
+        except Exception as e:
+            app.logger.error(f"Error deleting photo file: {e}")
+        
+        db.session.delete(photo)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Photo deleted successfully'})
+    
+    @app.route('/api/event/<uuid:event_uuid>/audio/<int:audio_id>/delete', methods=['POST'])
+    def api_delete_audio(event_uuid, audio_id):
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+            
+        event = Event.query.filter_by(uuid=str(event_uuid)).first_or_404()
+        audio = AudioMessage.query.filter_by(id=audio_id, event_id=event.id).first_or_404()
+        
+        # Check if user is allowed to delete (either owner or uploader)
+        if audio.user_id != current_user.id and event.user_id != current_user.id:
+            return jsonify({'error': 'Not authorized to delete this content'}), 403
+        
+        # Delete the file from the filesystem
+        try:
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], 'audio', audio.filename))
+        except Exception as e:
+            app.logger.error(f"Error deleting audio file: {e}")
+        
+        db.session.delete(audio)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Audio message deleted successfully'})
+    
+    @app.route('/api/event/<uuid:event_uuid>/messages/<int:message_id>/delete', methods=['POST'])
+    def api_delete_message(event_uuid, message_id):
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Not authenticated'}), 401
+            
+        event = Event.query.filter_by(uuid=str(event_uuid)).first_or_404()
+        message = GuestbookEntry.query.filter_by(id=message_id, event_id=event.id).first_or_404()
+        
+        # Check if user is allowed to delete (either owner or uploader)
+        if message.user_id != current_user.id and event.user_id != current_user.id:
+            return jsonify({'error': 'Not authorized to delete this content'}), 403
+        
+        db.session.delete(message)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Message deleted successfully'}) 

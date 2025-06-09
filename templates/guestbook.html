@@ -57,19 +57,36 @@
                     </form>
                 </div>
             </div>
+
+            <!-- My Messages Section -->
+            <div class="card mb-5">
+                <div class="card-header">
+                    <h3 class="mb-0">My Messages</h3>
+                </div>
+                <div class="card-body">
+                    <div id="my-messages-container">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Loading your messages...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {% else %}
             <div class="card mb-5">
                 <div class="card-body p-4 text-center">
                     <i class="fas fa-ban text-danger display-4 mb-3"></i>
-                    <h2 class="card-title mb-3">Guestbook Messages are Disabled</h2>
-                    <p class="mb-0">The event creator has temporarily disabled guestbook messages.</p>
+                    <h3>Guestbook Messages Disabled</h3>
+                    <p class="mb-0">The event creator has disabled guestbook messages for this event.</p>
                 </div>
             </div>
             {% endif %}
 
             <div class="card">
                 <div class="card-header">
-                    <h2 class="mb-0">Other Ways to Share</h2>
+                    <h3 class="mb-0">Other Ways to Share</h3>
                 </div>
                 <div class="card-body">
                     <div class="row g-4">
@@ -110,4 +127,146 @@
         </div>
     </div>
 </div>
+
+<!-- Alert Toast for AJAX actions -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="ajaxToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto" id="toastTitle">Notification</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastMessage">
+            Action completed successfully.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show a toast message
+        function showToast(message, success = true) {
+            const toastEl = document.getElementById('ajaxToast');
+            const toast = new bootstrap.Toast(toastEl);
+            
+            document.getElementById('toastTitle').textContent = success ? 'Success' : 'Error';
+            document.getElementById('toastMessage').textContent = message;
+            
+            // Set toast color based on success/error
+            toastEl.className = success ? 'toast bg-light' : 'toast bg-danger text-white';
+            
+            toast.show();
+        }
+        
+        // Delete a message via AJAX
+        function deleteMessage(messageId) {
+            if (!confirm('Are you sure you want to delete this message? This action cannot be undone.')) {
+                return;
+            }
+            
+            fetch('{{ url_for("api_delete_message", event_uuid=event.uuid, message_id=0) }}'.replace('/0', '/' + messageId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Remove the message element from the UI
+                    const messageElement = document.getElementById('message-' + messageId);
+                    if (messageElement) {
+                        messageElement.remove();
+                    }
+                    
+                    // Check if there are no messages left
+                    const container = document.getElementById('my-messages-container');
+                    if (container.children.length === 0) {
+                        container.innerHTML = 
+                            '<div class="text-center py-4">' +
+                                '<i class="fas fa-book text-muted display-4 mb-3"></i>' +
+                                '<h4>No Messages Yet</h4>' +
+                                '<p>You haven\'t posted any messages to this event yet.</p>' +
+                            '</div>';
+                    }
+                    
+                    showToast('Message deleted successfully.', true);
+                } else {
+                    showToast(data.message || 'Error deleting message.', false);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error deleting message. Please try again.', false);
+            });
+        }
+        
+        // Make deleteMessage function available globally
+        window.deleteMessage = deleteMessage;
+
+        {% if event.guestbook_enabled %}
+        // Load user's messages
+        fetch('{{ url_for("api_my_messages", event_uuid=event.uuid) }}')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(messages => {
+                const container = document.getElementById('my-messages-container');
+                container.innerHTML = '';
+                
+                if (messages.length === 0) {
+                    container.innerHTML = 
+                        '<div class="text-center py-4">' +
+                            '<i class="fas fa-book text-muted display-4 mb-3"></i>' +
+                            '<h4>No Messages Yet</h4>' +
+                            '<p>You haven\'t posted any messages to this event yet.</p>' +
+                        '</div>';
+                    return;
+                }
+                
+                messages.forEach(message => {
+                    const messageDate = new Date(message.created_at);
+                    const formattedDate = messageDate.toLocaleDateString() + ' ' + messageDate.toLocaleTimeString();
+                    
+                    const messageEl = document.createElement('div');
+                    messageEl.className = 'card mb-3';
+                    messageEl.id = 'message-' + message.id;
+                    messageEl.innerHTML = 
+                        '<div class="card-body">' +
+                            '<div class="d-flex justify-content-between align-items-start">' +
+                                '<h5 class="card-title">' + message.name + '</h5>' +
+                                '<small class="text-muted">' + formattedDate + '</small>' +
+                            '</div>' +
+                            '<p class="card-text">' + message.message + '</p>' +
+                            '<button onclick="deleteMessage(' + message.id + ')" class="btn btn-sm btn-outline-danger">' +
+                                '<i class="fas fa-trash-alt me-2"></i> Delete Message' +
+                            '</button>' +
+                        '</div>';
+                    container.appendChild(messageEl);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading messages:', error);
+                const container = document.getElementById('my-messages-container');
+                container.innerHTML = 
+                    '<div class="text-center py-4">' +
+                        '<i class="fas fa-exclamation-triangle text-warning display-4 mb-3"></i>' +
+                        '<h4>Error Loading Messages</h4>' +
+                        '<p>There was a problem loading your messages. Please try refreshing the page.</p>' +
+                    '</div>';
+            });
+        {% endif %}
+    });
+</script>
 {% endblock %} 

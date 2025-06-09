@@ -57,6 +57,7 @@ class GuestbookEntry(db.Model):
     message = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     
     def __repr__(self):
         return f'<GuestbookEntry {self.name}>'
@@ -69,6 +70,7 @@ class Photo(db.Model):
     caption = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     
     def __repr__(self):
         return f'<Photo {self.filename}>'
@@ -76,13 +78,14 @@ class Photo(db.Model):
 class AudioMessage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(255), nullable=False)
-    guest_name = db.Column(db.String(100), nullable=False)
-    duration = db.Column(db.Integer)  # Duration in seconds
+    guest_name = db.Column(db.String(100))
+    duration = db.Column(db.String(10))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     
     def __repr__(self):
-        return f'<AudioMessage {self.filename}>' 
+        return f'<AudioMessage {self.filename}>'
 
 class GuestAccess(db.Model):
     id = db.Column(db.Integer, primary_key=True)
