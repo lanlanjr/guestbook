@@ -28,7 +28,6 @@ env/
 # Flask
 instance/
 .webassets-cache
-portalshare.db
 
 # Uploaded files
 static/uploads/
@@ -49,3 +48,4 @@ Thumbs.db
 
 # Log files
 *.log 
+instance/portalshare.db
